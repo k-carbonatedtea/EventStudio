@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { X, BookOpen, Layers, Keyboard, HelpCircle } from 'lucide-react';
+import { X, BookOpen, Layers, Keyboard, HelpCircle, ExternalLink } from 'lucide-react';
+import { openExternalUrl } from '../utils/openExternal';
 import { useTranslation } from '../i18n';
 
 interface HelpModalProps {
@@ -7,10 +8,26 @@ interface HelpModalProps {
   onClose: () => void;
 }
 
+const GITHUB_REPO_URL = 'https://github.com/k-carbonatedtea/EventStudio';
+
+// GitHub SVG 矢量图标组件
+function GithubIcon({ size = 16, color = 'currentColor' }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
+    </svg>
+  );
+}
+
 // 使用说明与帮助指南弹窗
 export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
   const { t, locale } = useTranslation();
   const [activeTab, setActiveTab] = useState<'guide' | 'nodes' | 'shortcuts' | 'faq'>('guide');
+
+  // 打开外部 GitHub 仓库页面
+  const handleOpenGithub = () => {
+    openExternalUrl(GITHUB_REPO_URL);
+  };
 
   if (!isOpen) return null;
 
@@ -54,6 +71,44 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div className="settings-tip">
                 <strong>Event Studio</strong> {t('help.introDesc1')}
+              </div>
+
+              {/* GitHub 官方开源仓库 */}
+              <div
+                onClick={handleOpenGithub}
+                style={{
+                  background: 'linear-gradient(135deg, #18181b 0%, #1e293b 100%)',
+                  border: '1px solid rgba(56, 189, 248, 0.35)',
+                  borderRadius: 8,
+                  padding: '12px 16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  flexWrap: 'wrap',
+                  gap: 12,
+                  cursor: 'pointer'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <GithubIcon size={24} color="#38bdf8" />
+                  <div>
+                    <div style={{ fontWeight: 600, color: '#f8fafc', fontSize: '0.92rem' }}>{t('help.githubTitle')}</div>
+                    <div style={{ fontSize: '0.78rem', color: '#94a3b8', marginTop: 2 }}>{t('help.githubDesc')}</div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="am-btn am-btn-primary"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleOpenGithub();
+                  }}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 14px', fontSize: '0.82rem', cursor: 'pointer' }}
+                >
+                  <GithubIcon size={13} />
+                  <span>{t('help.openGithub')}</span>
+                  <ExternalLink size={11} />
+                </button>
               </div>
 
               {/* 1. 文件打开与工程管理 */}
@@ -234,7 +289,34 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
                 <h4 style={{ margin: '0 0 6px 0', color: '#f8fafc' }}>{t('help.faqFeedbackTitle')}</h4>
                 <div style={{ fontSize: '0.85rem', color: '#94a3b8', lineHeight: 1.6 }}>
                   {t('help.faqFeedbackDesc')}
-                  <div style={{ marginTop: 6, display: 'flex', flexDirection: 'column', gap: 4, color: '#cbd5e1' }}>
+                  <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 6, color: '#cbd5e1' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                      <span>• <strong>GitHub:</strong></span>
+                      <a
+                        href={GITHUB_REPO_URL}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleOpenGithub();
+                        }}
+                        style={{
+                          background: 'rgba(56, 189, 248, 0.12)',
+                          border: '1px solid rgba(56, 189, 248, 0.3)',
+                          color: '#38bdf8',
+                          padding: '3px 10px',
+                          borderRadius: 4,
+                          cursor: 'pointer',
+                          fontSize: '0.84rem',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          textDecoration: 'none'
+                        }}
+                      >
+                        <GithubIcon size={13} />
+                        <span>https://github.com/k-carbonatedtea/EventStudio</span>
+                        <ExternalLink size={11} />
+                      </a>
+                    </div>
                     <div>• <strong>Discord:</strong> <code style={{ color: '#60a5fa' }}>ylimhs_</code> {t('about.or')} <code style={{ color: '#60a5fa' }}>carbonatedtea</code></div>
                     <div>• <strong>QQ:</strong> <code style={{ color: '#34d399' }}>2875285430</code></div>
                   </div>

@@ -283,6 +283,7 @@ export const zh: TranslationSchema = {
       '内置 YAML / AAMP / BYML 参数编辑工具。',
     ],
     devContactTitle: '开发者联系与交流',
+    githubLabel: 'GitHub:',
     discordLabel: 'Discord:',
     qqLabel: 'QQ:',
     or: '或',

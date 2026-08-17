@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { X, Info, Code, Heart } from 'lucide-react';
+import { X, Info, Code, Heart, ExternalLink } from 'lucide-react';
+import { openExternalUrl } from '../utils/openExternal';
 import { useTranslation } from '../i18n';
 
 interface AboutModalProps {
@@ -7,10 +8,26 @@ interface AboutModalProps {
   onClose: () => void;
 }
 
+const GITHUB_REPO_URL = 'https://github.com/k-carbonatedtea/EventStudio';
+
+// GitHub SVG 矢量图标组件
+function GithubIcon({ size = 16, color = 'currentColor' }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
+    </svg>
+  );
+}
+
 // 关于软件弹窗：展示版本信息、使用的开源库列表及社区致谢
 export default function AboutModal({ isOpen, onClose }: AboutModalProps) {
   const { t, locale } = useTranslation();
   const [activeTab, setActiveTab] = useState<'info' | 'libraries' | 'credits'>('info');
+
+  // 打开外部 GitHub 页面
+  const handleOpenGithub = () => {
+    openExternalUrl(GITHUB_REPO_URL);
+  };
 
   if (!isOpen) return null;
 
@@ -95,6 +112,33 @@ export default function AboutModal({ isOpen, onClose }: AboutModalProps) {
               <div style={{ background: '#141414', border: '1px solid #333333', borderRadius: 8, padding: 14 }}>
                 <h4 style={{ margin: '0 0 10px 0', color: '#38bdf8', fontSize: '0.92rem' }}>{t('about.devContactTitle')}</h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: '0.86rem', color: '#cbd5e1' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                    <span style={{ color: '#94a3b8', width: 75 }}>{t('about.githubLabel')}</span>
+                    <a
+                      href={GITHUB_REPO_URL}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleOpenGithub();
+                      }}
+                      style={{
+                        background: 'rgba(56, 189, 248, 0.12)',
+                        border: '1px solid rgba(56, 189, 248, 0.3)',
+                        color: '#38bdf8',
+                        padding: '3px 10px',
+                        borderRadius: 4,
+                        cursor: 'pointer',
+                        fontSize: '0.84rem',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        textDecoration: 'none'
+                      }}
+                    >
+                      <GithubIcon size={13} />
+                      <span>https://github.com/k-carbonatedtea/EventStudio</span>
+                      <ExternalLink size={11} />
+                    </a>
+                  </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ color: '#94a3b8', width: 75 }}>{t('about.discordLabel')}</span>
                     <code style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#60a5fa', padding: '2px 8px', borderRadius: 4, fontFamily: 'monospace' }}>ylimhs_</code>

@@ -489,6 +489,23 @@ fn open_path_in_explorer(path: &str) -> Result<(), String> {
 }
 
 #[tauri::command]
+fn open_external_url(url: &str) -> Result<(), String> {
+    // 在系统默认浏览器中打开外部链接
+    #[cfg(target_os = "windows")]
+    {
+        std::process::Command::new("cmd")
+            .args(["/c", "start", "", url])
+            .spawn()
+            .map_err(|e| e.to_string())?;
+    }
+    #[cfg(not(target_os = "windows"))]
+    {
+        let _ = tauri_plugin_opener::open_url(url, None::<&str>);
+    }
+    Ok(())
+}
+
+#[tauri::command]
 fn new_evfl() -> Result<String, String> {
     let mut evfl = EventFlow::new();
     evfl.name = "Untitled".to_string();
@@ -1115,6 +1132,7 @@ pub fn run() {
             save_yaml,
             open_settings_dir,
             open_path_in_explorer,
+            open_external_url,
             clean_autosave_cache,
             import_bcml_paths,
             load_file_history,

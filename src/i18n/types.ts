@@ -277,6 +277,7 @@ export interface TranslationSchema {
     featuresTitle: string;
     features: string[];
     devContactTitle: string;
+    githubLabel: string;
     discordLabel: string;
     qqLabel: string;
     or: string;
@@ -300,6 +301,9 @@ export interface TranslationSchema {
     introDesc1: string;
     introDesc2: string;
     introDesc3: string;
+    githubTitle: string;
+    githubDesc: string;
+    openGithub: string;
     nodeActionDesc: string;
     nodeSwitchDesc: string;
     nodeForkDesc: string;

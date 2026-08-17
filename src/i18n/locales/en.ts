@@ -283,6 +283,7 @@ export const en: TranslationSchema = {
       'Built-in YAML / AAMP / BYML parameter editing tools.',
     ],
     devContactTitle: 'Developer Contact & Community',
+    githubLabel: 'GitHub:',
     discordLabel: 'Discord:',
     qqLabel: 'QQ:',
     or: 'or',
