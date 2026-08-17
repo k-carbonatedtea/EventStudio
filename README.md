@@ -6,6 +6,10 @@
 </p>
 
 <p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPL%202.0-blue.svg" alt="License: GPL 2.0" /></a>
+</p>
+
+<p align="center">
   <a href="#中文说明">中文说明</a> •
   <a href="#english-guide">English Guide</a> •
   <a href="#快捷键清单--keyboard-shortcuts">快捷键清单 / Shortcuts</a>

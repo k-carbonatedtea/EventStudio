@@ -4,6 +4,7 @@ version = "1.0.2"
 description = "A visual flowchart editor for Nintendo event flow (BFEVFL) files"
 authors = ["you"]
 edition = "2021"
+license = "GPL-2.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
