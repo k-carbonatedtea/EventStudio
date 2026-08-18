@@ -1,29 +1,98 @@
 # Event Studio
 
 <p align="center">
-  <strong>高性能任天堂游戏可视化事件流与脚本编辑器</strong><br>
-  <strong>High-Performance Visual Event Flow & Script Editor for Nintendo Games</strong>
+  <strong>High-Performance Visual Event Flow & Script Editor for Nintendo Games</strong><br>
+  <strong>高性能任天堂游戏可视化事件流与脚本编辑器</strong>
 </p>
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPL%202.0-blue.svg" alt="License: GPL 2.0" /></a>
+  <img src="https://img.shields.io/badge/Language-English%20%7C%20%E4%B8%AD%E6%96%87-blue" alt="Language" />
 </p>
 
 <p align="center">
-  <a href="#中文说明">中文说明</a> •
-  <a href="#english-guide">English Guide</a> •
-  <a href="#快捷键清单--keyboard-shortcuts">快捷键清单 / Shortcuts</a>
+  <a href="#-english-guide">English Guide</a> •
+  <a href="#-chinese-guide--中文说明">中文说明 (Chinese)</a> •
+  <a href="#-keyboard-shortcuts--快捷键清单">Keyboard Shortcuts</a> •
+  <a href="#-disclaimer--免责声明">Disclaimer / 免责声明</a>
 </p>
 
 ---
 
-<a name="中文说明"></a>
-## 🇨🇳 中文说明
+## 🇬🇧 English Guide
+
+### 📖 Introduction
+**Event Studio** is a high-performance, cross-platform visual **EventFlow** editor specifically designed for Nintendo games (such as *The Legend of Zelda: Breath of the Wild*, *Tears of the Kingdom*, and *Animal Crossing: New Horizons*).
+
+Powered by a **Rust (Revfl/Tauri)** backend and a modern **React + TypeScript** frontend, it delivers lightning-fast parsing, visual diagramming, and byte-accurate repacking for `.bfevfl` event flows, `.sbeventpack` / `.pack` archives, and `.msbt` dialogue files.
+
+> 💡 **Notice**: Approximately **40%** of this project's code was generated with **AI assistance**, and has undergone **human review, code auditing, and testing verification** to ensure reliability and performance.
+
+> ⚠️ **Disclaimer**: This tool is developed primarily for the author's **personal MOD creation and testing**. While tested and verified, the author **assumes no liability for any file corruption, data loss, game crashes, or other damages** resulting from its use. **Always backup your original files before editing.** If you do not trust this tool, please refrain from using it.
+
+---
+
+### ✨ Key Features
+
+- 🎯 **Intuitive Node-Based Flowchart**: Visualizes event logic as interactive DAG flowcharts with zooming, panning, Dagre auto-layout, and multi-directional edge routing.
+- 📦 **Comprehensive File Format Support**:
+  - `.bfevfl` / `.bfevtm`: Direct binary reading/writing with bi-directional JSON source synchronization.
+  - `.sbeventpack` / `.pack` / `.sarc`: Hierarchical archive explorer with automatic Yaz0 decompression and transparent repacking.
+  - `.msbt`: Localized dialogue editor featuring tag highlighting and live rich-text previews.
+  - `.aamp` / `.byml`: Automatic decompile to YAML and instant recompile to binary.
+- ✂️ **Knife Mode**: Quickly sever node connections with a single click, or drag output pins to empty space for rapid node creation and auto-linking.
+- 💬 **Live In-Game Dialogue Lookup**: Integrates with game dictionaries to automatically resolve message keys and display localized NPC lines directly inside action nodes.
+- ⏱️ **Persistent Auto-Save & Timeline**: Every modification generates a timestamped snapshot saved to disk, allowing seamless rollback across sessions.
+
+---
+
+### 🚀 Getting Started
+
+#### 1. Open Files or Archives
+- Click **File -> Open** or press `Ctrl + O`.
+- Alternatively, drag and drop `.bfevfl` or `.sbeventpack` files directly into the window.
+
+#### 2. Configure Game Paths (Recommended)
+- Press `Ctrl + ,` or click **Settings** in the top right corner.
+- Set your **Game Root Directory** and select the active language pack (e.g., `USen`, `CNzh`).
+- The editor will index the game's MSBT dictionaries to display dialogue lines on nodes.
+
+#### 3. Edit and Save
+- **Add Nodes**: Right-click on empty canvas or drag out from any handle to open the creation menu.
+- **Edit Parameters**: Double-click any node or use the inspector pane on the right.
+- **Cut Connections**: Press `K` to enter Knife Mode, hover over an edge, and click to sever it.
+- **Save**: Press `Ctrl + S`. Files inside archives are automatically repacked and compressed.
+
+---
+
+### 🧩 Core Node Types
+
+| Node Type | Icon/Badge | Description |
+| :--- | :--- | :--- |
+| **Action** | 🟩 Rectangle | Concrete behavior executed by an actor or system (play animation, open dialogue, play sound, warp). |
+| **Switch** | 🔶 Diamond | Conditional branching node routing to different cases based on the return value of a query function. |
+| **Fork** | 🔷 Fork Bar | Splits a single execution line into multiple concurrent parallel branches. |
+| **Join** | 🔷 Join Bar | Waits for all associated parallel branches to finish before resuming execution. |
+| **SubFlow** | 🟪 SubFlow Frame | Calls and jumps into another standalone Flowchart file. |
+| **EntryPoint** | 🔴 Entry Point | Identifies an event flow entry target where the game engine starts execution. |
+
+---
+
+<a name="-chinese-guide--中文说明"></a>
+## 🇨🇳 Chinese Guide / 中文说明
+
+<details open>
+<summary><b>👉 点击切换/折叠中文说明 (Click to toggle Chinese Guide)</b></summary>
+<br>
 
 ### 📖 项目简介
 **Event Studio** 是一款专为任天堂游戏（如《塞尔达传说：旷野之息》、《王国之泪》、《集合啦！动物森友会》等）打造的高性能跨平台可视化事件流 (**EventFlow**) 脚本编辑器。
 
 基于 **Rust (Revfl/Tauri)** 核心与 **React + TypeScript** 现代化前端构建，支持毫秒级解析、修改与重新打包 `.bfevfl` 事件流、`.sbeventpack` / `.pack` 归档以及 `.msbt` 对话文本。
+
+> 💡 **说明与声明**：本项目约 **40%** 的代码由 **AI 辅助生成与编写**，但所有核心架构、数据流与业务逻辑均经过**人工审查、重构与测试验证**，确保代码质量与运行稳定性。
+
+> ⚠️ **免责声明**：本项目主要为作者个人**创建与调试游戏 MOD 自用**而开发。尽管已做充分测试，作者**不对任何因使用本工具导致的文件损坏、数据丢失、游戏崩溃、存档异常或其他任何损失承担任何责任**。**使用前请务必自行备份原始文件**。若您对此工具存有疑虑或不信任，请谨慎或停止使用。
 
 ---
 
@@ -71,80 +140,39 @@
 | **SubFlow (子流程)** | 🟪 流程框 | 调用并跳转执行另一个独立的 Flowchart 流程图文件。 |
 | **EntryPoint (入口)** | 🔴 标记点 | 标识事件流入口，游戏引擎从指定的入口节点开始流转。 |
 
----
-
-<a name="english-guide"></a>
-## 🇬🇧 English Guide
-
-### 📖 Introduction
-**Event Studio** is a high-performance, cross-platform visual **EventFlow** editor specifically designed for Nintendo games (such as *The Legend of Zelda: Breath of the Wild*, *Tears of the Kingdom*, and *Animal Crossing: New Horizons*).
-
-Powered by a **Rust (Revfl/Tauri)** backend and a modern **React + TypeScript** frontend, it delivers lightning-fast parsing, visual diagramming, and byte-accurate repacking for `.bfevfl` event flows, `.sbeventpack` / `.pack` archives, and `.msbt` dialogue files.
+</details>
 
 ---
 
-### ✨ Key Features
+<a name="-keyboard-shortcuts--快捷键清单"></a>
+## ⌨️ Keyboard Shortcuts / 快捷键清单
 
-- 🎯 **Intuitive Node-Based Flowchart**: Visualizes event logic as interactive DAG flowcharts with zooming, panning, Dagre auto-layout, and multi-directional edge routing.
-- 📦 **Comprehensive File Format Support**:
-  - `.bfevfl` / `.bfevtm`: Direct binary reading/writing with bi-directional JSON source synchronization.
-  - `.sbeventpack` / `.pack` / `.sarc`: Hierarchical archive explorer with automatic Yaz0 decompression and transparent repacking.
-  - `.msbt`: Localized dialogue editor featuring tag highlighting and live rich-text previews.
-  - `.aamp` / `.byml`: Automatic decompile to YAML and instant recompile to binary.
-- ✂️ **Knife Mode**: Quickly sever node connections with a single click, or drag output pins to empty space for rapid node creation and auto-linking.
-- 💬 **Live In-Game Dialogue Lookup**: Integrates with game dictionaries to automatically resolve message keys and display localized NPC lines directly inside action nodes.
-- ⏱️ **Persistent Auto-Save & Timeline**: Every modification generates a timestamped snapshot saved to disk, allowing seamless rollback across sessions.
-
----
-
-### 🚀 Getting Started
-
-#### 1. Open Files or Archives
-- Click **File -> Open** or press `Ctrl + O`.
-- Alternatively, drag and drop `.bfevfl` or `.sbeventpack` files directly into the window.
-
-#### 2. Configure Game Paths (Recommended)
-- Press `Ctrl + ,` or click **Settings** in the top right corner.
-- Set your **Game Root Directory** and select the active language pack (e.g., `USen`, `CNzh`).
-- The editor will index the game's MSBT dictionaries to display dialogue lines on nodes.
-
-#### 3. Edit and Save
-- **Add Nodes**: Right-click on empty canvas or drag out from any handle to open the creation menu.
-- **Edit Parameters**: Double-click any node or use the inspector pane on the right.
-- **Cut Connections**: Press `K` to enter Knife Mode, hover over an edge, and click to sever it.
-- **Save**: Press `Ctrl + S`. Files inside archives are automatically repacked and compressed.
-
----
-
-<a name="快捷键清单--keyboard-shortcuts"></a>
-## ⌨️ 快捷键清单 / Keyboard Shortcuts
-
-| 快捷键 (Shortcut) | 中文说明 (Chinese) | 英文说明 (English) |
+| Shortcut (快捷键) | English (英文说明) | Chinese (中文说明) |
 | :--- | :--- | :--- |
-| `Ctrl + O` | 打开单个文件或归档包 | Open file or archive (`.bfevfl`, `.pack`, `.msbt`) |
-| `Ctrl + N` | 新建空白事件流文件 | Create new empty event flow |
-| `Ctrl + S` | 保存当前文件（自动写回封包） | Save current file (auto-repack into archive) |
-| `Ctrl + Shift + S` | 当前流程图另存为新文件 | Save flowchart as a new file |
-| `Ctrl + Z` | 撤销上一步操作 | Undo last action |
-| `Ctrl + Y` / `Ctrl + Shift + Z` | 重做上一步操作 | Redo |
-| `Ctrl + Shift + R` | 重新自动计算排版并刷新图表 | Recalculate auto-layout and refresh canvas |
-| `Ctrl + ,` | 打开设置与游戏偏好 | Open Settings & Game Preferences |
-| `K` | 开启/关闭切刀模式（单击连线快速断开） | Toggle Knife Mode (click edge to cut) |
-| `F` / `A` / `E` / `J` | 快速切换视图（流程图 / 角色 / 事件 / JSON） | Switch View (Flowchart / Actors / Events / JSON) |
-| `F1` | 打开使用说明与帮助窗口 | Open User Guide & Help dialog |
-| `鼠标右键节点` | 打开节点快捷菜单（编辑/添加子节点等） | Open node context menu |
-| `鼠标右键画布` | 打开全局创建菜单 | Open global canvas create menu |
-| `双击节点` | 打开节点属性与参数编辑窗口 | Open node properties and parameter editor |
+| `Ctrl + O` | Open file or archive (`.bfevfl`, `.pack`, `.msbt`) | 打开单个文件或归档包 |
+| `Ctrl + N` | Create new empty event flow | 新建空白事件流文件 |
+| `Ctrl + S` | Save current file (auto-repack into archive) | 保存当前文件（自动写回封包） |
+| `Ctrl + Shift + S` | Save flowchart as a new file | 当前流程图另存为新文件 |
+| `Ctrl + Z` | Undo last action | 撤销上一步操作 |
+| `Ctrl + Y` / `Ctrl + Shift + Z` | Redo | 重做上一步操作 |
+| `Ctrl + Shift + R` | Recalculate auto-layout and refresh canvas | 重新自动计算排版并刷新图表 |
+| `Ctrl + ,` | Open Settings & Game Preferences | 打开设置与游戏偏好 |
+| `K` | Toggle Knife Mode (click edge to cut) | 开启/关闭切刀模式（单击连线快速断开） |
+| `F` / `A` / `E` / `J` | Switch View (Flowchart / Actors / Events / JSON) | 快速切换视图（流程图 / 角色 / 事件 / JSON） |
+| `F1` | Open User Guide & Help dialog | 打开使用说明与帮助窗口 |
+| `Right Click Node` | Open node context menu | 打开节点快捷菜单（编辑/添加子节点等） |
+| `Right Click Canvas` | Open global canvas create menu | 打开全局创建菜单 |
+| `Double Click Node` | Open node properties and parameter editor | 打开节点属性与参数编辑窗口 |
 
 ---
 
-## 🛠️ 构建与开发 / Development & Build
+## 🛠️ Development & Build / 构建与开发
 
-### 环境依赖 / Prerequisites
+### Prerequisites / 环境依赖
 - [Node.js](https://nodejs.org/) (v18+) & `npm` / `pnpm`
 - [Rust](https://www.rust-lang.org/) (Cargo 1.70+)
 
-### 本地运行 / Run Locally
+### Run Locally / 本地运行
 ```bash
 # 1. 安装前端依赖 / Install frontend dependencies
 npm install
@@ -153,7 +181,7 @@ npm install
 npm run tauri dev
 ```
 
-### 生产打包 / Build Production Binary
+### Build Production Binary / 生产打包
 ```bash
 # 运行构建脚本或使用 Tauri CLI / Build desktop installer
 npm run tauri build
@@ -161,14 +189,30 @@ npm run tauri build
 
 ---
 
-## 🤝 社区与支持 / Community & Support
+<a name="-disclaimer--免责声明"></a>
+## ⚠️ Disclaimer / 免责声明
 
-- **GitHub Issues**: 欢迎在 [GitHub Issues](https://github.com/k-carbonatedtea/EventStudio/issues) 提交反馈与功能建议
-- **Discord**: `ylimhs_` 或 `carbonatedtea`
-- **QQ 交流**: `2875285430`
+### 🇬🇧 English
+1. **Personal Purpose**: This project was developed primarily for the author's personal workflow to create, modify, and debug game MODs.
+2. **No Warranty / No Liability**: Although the software is tested, it is provided **"AS IS" WITHOUT WARRANTY OF ANY KIND**. The author shall not be held liable for any data loss, file corruption, game crashes, archive damage, or other damages arising from the use of this tool.
+3. **Backup Recommendation**: **Always make backups of your original game files and MOD packages** before editing. If you do not trust the stability or safety of this tool, please refrain from using it.
+
+### 🇨🇳 中文
+1. **个人自用开发**：本项目主要为作者个人制作、修改与调试游戏 MOD 的工作流而开发。
+2. **免责与风险自担**：尽管软件已经过测试与验证，但仍以 **"按现状"（AS IS）** 提供，不作任何明示或暗示的保证。作者**不对任何因使用本工具产生的文件损坏、数据丢失、游戏崩溃、存档异常或其他损失承担任何法律责任**。
+3. **备份建议**：使用本软件修改任何文件前，**请务必自行备份原始游戏文件及 MOD 封包**。如果您对本软件的稳定性或安全性存有疑虑或不信任，请谨慎评估或停止使用。
 
 ---
 
-## 📄 开源许可证 / License
+## 🤝 Community & Support / 社区与支持
 
+- **GitHub Issues**: Welcome to submit feedback & feature requests on [GitHub Issues](https://github.com/k-carbonatedtea/EventStudio/issues)
+- **Discord**: `ylimhs_` or `carbonatedtea`
+- **QQ Group / 交流**: `2875285430`
+
+---
+
+## 📄 License / 开源许可证
+
+This project is licensed under the [GPL-2.0](LICENSE) License.
 本项目基于 [GPL-2.0](LICENSE) 许可证开源发布。
