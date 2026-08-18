@@ -8,7 +8,8 @@ export const zhHelp: TranslationSchema['help'] = {
   tabShortcuts: '快捷键清单',
   tabFaq: '常见问题 (FAQ)',
   introTitle: '关于 Event Studio',
-  introDesc1: 'Event Studio 是一款专为任天堂《塞尔达传说：旷野之息》等游戏打造的高性能可视化事件流 (EventFlow) 编辑工具。',
+  introDesc1:
+    'Event Studio 是一款专为任天堂《塞尔达传说：旷野之息》等游戏打造的高性能可视化事件流 (EventFlow) 编辑工具。',
   introDesc2: '通过直观的节点图表，您可以轻松编辑 NPC 剧情对话、任务流向、过场动画逻辑及镜头动作。',
   introDesc3: '本编辑器支持直接打开与写回 .bfevfl 二进制文件以及 .sbeventpack / .pack 封包归档。',
   githubTitle: 'GitHub 开源仓库',
@@ -37,15 +38,21 @@ export const zhHelp: TranslationSchema['help'] = {
     { key: 'F1', desc: '打开本使用说明与支持窗口' },
   ],
   faqFormatsTitle: 'Q: 软件支持打开与编辑哪些游戏文件格式？',
-  faqFormatsDesc: '支持 .bfevfl（流程图可视化与 JSON 源码双向编辑）、.sbeventpack / .pack（Yaz0 自动压缩解压并支持多层级文件树）、.msbt（包含颜色标签高亮与即时渲染的文本本地化编辑器）、以及 .aamp / .byml（自动反编译为 YAML 源码编辑并编译回二进制）。',
+  faqFormatsDesc:
+    '支持 .bfevfl（流程图可视化与 JSON 源码双向编辑）、.sbeventpack / .pack（Yaz0 自动压缩解压并支持多层级文件树）、.msbt（包含颜色标签高亮与即时渲染的文本本地化编辑器）、以及 .aamp / .byml（自动反编译为 YAML 源码编辑并编译回二进制）。',
   faqTimelineTitle: 'Q: 历史时间轴与多步自动保存是如何工作的？',
-  faqTimelineDesc: '每次节点增删、属性修改或连线变动，系统都会自动记录带有时间戳的快照并持久化保存至 Documents/EventEditor/autosave/。即使意外关闭或重新打开文件，历史记录也会完整还原，并支持随时跳转到任意历史步骤或单步删除。',
+  faqTimelineDesc:
+    '每次节点增删、属性修改或连线变动，系统都会自动记录带有时间戳的快照并持久化保存至 Documents/EventEditor/autosave/。即使意外关闭或重新打开文件，历史记录也会完整还原，并支持随时跳转到任意历史步骤或单步删除。',
   faqKnifeTitle: 'Q: 如何高效进行连线断开与新建节点？',
-  faqKnifeDesc: '按 K 键可开启刀切模式，鼠标悬停连线即亮红，单击连线可瞬间断开；在空白画布上拖拽任意节点的输出端并松开，可直接唤出新建菜单，创建后自动与源节点建立连线。',
+  faqKnifeDesc:
+    '按 K 键可开启刀切模式，鼠标悬停连线即亮红，单击连线可瞬间断开；在空白画布上拖拽任意节点的输出端并松开，可直接唤出新建菜单，创建后自动与源节点建立连线。',
   faqBlankTitle: 'Q: 为什么对话文本预览显示空白？',
-  faqBlankDesc: '请先在「设置 -> 偏好设置」中配置好游戏根目录（Game Dir）与目标语言包（如 CNzh），系统将自动加载全量 MSBT 文本字典并在 Flowchart 节点中实时解析显示中文台词。',
+  faqBlankDesc:
+    '请先在「设置 -> 偏好设置」中配置好游戏根目录（Game Dir）与目标语言包（如 CNzh），系统将自动加载全量 MSBT 文本字典并在 Flowchart 节点中实时解析显示中文台词。',
   faqSarcTitle: 'Q: SARC / sbeventpack 压缩包是如何保存的？',
-  faqSarcDesc: '在侧边栏中直接点击压缩包内部的任意 .bfevfl 或 .msbt 进行编辑，点击保存时后台会自动将修改后的二进制文件重新写回压缩包内，并按需进行 Yaz0 压缩。',
+  faqSarcDesc:
+    '在侧边栏中直接点击压缩包内部的任意 .bfevfl 或 .msbt 进行编辑，点击保存时后台会自动将修改后的二进制文件重新写回压缩包内，并按需进行 Yaz0 压缩。',
   faqFeedbackTitle: 'Q: 发现 Bug 或有新功能建议如何反馈？',
-  faqFeedbackDesc: '欢迎加入我们的官方 Discord 或 QQ 交流群反馈问题，您也可以在 GitHub 仓库提交 Issue。',
+  faqFeedbackDesc:
+    '欢迎加入我们的官方 Discord 或 QQ 交流群反馈问题，您也可以在 GitHub 仓库提交 Issue。',
 };

@@ -1,10 +1,15 @@
-import { useState, useEffect, type FormEvent } from "react";
-import { X, CheckCircle2, Monitor, Gamepad2, Settings } from "lucide-react";
-import { GamePathSettings, SwitchPathSettings, WiiUPathSettings, PlatformType } from "../types/settings";
-import SwitchSettingsPane from "./settings/SwitchSettingsPane";
-import WiiUSettingsPane from "./settings/WiiUSettingsPane";
-import GeneralSettingsPane from "./settings/GeneralSettingsPane";
-import { useTranslation } from "../i18n";
+import { useState, useEffect, type FormEvent } from 'react';
+import { X, CheckCircle2, Monitor, Gamepad2, Settings } from 'lucide-react';
+import {
+  GamePathSettings,
+  SwitchPathSettings,
+  WiiUPathSettings,
+  PlatformType,
+} from '../types/settings';
+import SwitchSettingsPane from './settings/SwitchSettingsPane';
+import WiiUSettingsPane from './settings/WiiUSettingsPane';
+import GeneralSettingsPane from './settings/GeneralSettingsPane';
+import { useTranslation } from '../i18n';
 
 interface GameSettingsModalProps {
   isOpen: boolean;
@@ -12,7 +17,7 @@ interface GameSettingsModalProps {
   onClose: () => void;
   onSave: (newSettings: GamePathSettings) => void;
   onPickFolder: (title?: string) => Promise<string | null>;
-  onShowToast: (text: string, type?: "success" | "error" | "info") => void;
+  onShowToast: (text: string, type?: 'success' | 'error' | 'info') => void;
 }
 
 // 统一偏好与双平台路径设置弹窗
@@ -26,12 +31,12 @@ export default function GameSettingsModal({
 }: GameSettingsModalProps) {
   const { t, locale } = useTranslation();
   const [formData, setFormData] = useState<GamePathSettings>(initialSettings);
-  const [activeTab, setActiveTab] = useState<"general" | "switch" | "wiiu">("general");
+  const [activeTab, setActiveTab] = useState<'general' | 'switch' | 'wiiu'>('general');
 
   useEffect(() => {
     if (isOpen) {
       setFormData(structuredClone(initialSettings));
-      setActiveTab("general");
+      setActiveTab('general');
     }
   }, [isOpen, initialSettings]);
 
@@ -69,7 +74,7 @@ export default function GameSettingsModal({
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     onSave(formData);
-    onShowToast(t('settings.saveSuccess'), "success");
+    onShowToast(t('settings.saveSuccess'), 'success');
     onClose();
   };
 
@@ -79,7 +84,7 @@ export default function GameSettingsModal({
     wiiuUpdate?: string,
     wiiuDlc?: string,
     switchGame?: string,
-    switchDlc?: string
+    switchDlc?: string,
   ) => {
     setFormData((prev) => ({
       ...prev,
@@ -98,12 +103,17 @@ export default function GameSettingsModal({
   };
 
   return (
-    <div className="modal-overlay" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+    <div
+      className="modal-overlay"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
       <div className="modal-content settings-modal" onClick={(e) => e.stopPropagation()}>
         {/* 弹窗头部 */}
         <div className="modal-header">
           <div className="modal-title">
-            <Settings size={18} style={{ marginRight: "8px", color: "#38bdf8" }} />
+            <Settings size={18} style={{ marginRight: '8px', color: '#38bdf8' }} />
             <span>{t('settings.title')}</span>
           </div>
           <button className="close-btn" onClick={onClose} title={t('common.close')}>
@@ -115,8 +125,8 @@ export default function GameSettingsModal({
         <div className="settings-tabs">
           <button
             type="button"
-            className={`settings-tab-btn ${activeTab === "general" ? "active" : ""}`}
-            onClick={() => setActiveTab("general")}
+            className={`settings-tab-btn ${activeTab === 'general' ? 'active' : ''}`}
+            onClick={() => setActiveTab('general')}
           >
             <Settings size={16} />
             <span>{t('settings.generalTab')}</span>
@@ -124,72 +134,76 @@ export default function GameSettingsModal({
 
           <button
             type="button"
-            className={`settings-tab-btn ${activeTab === "switch" ? "active" : ""}`}
-            onClick={() => setActiveTab("switch")}
+            className={`settings-tab-btn ${activeTab === 'switch' ? 'active' : ''}`}
+            onClick={() => setActiveTab('switch')}
           >
             <Gamepad2 size={16} />
             <span>{t('settings.switchTab')}</span>
-            {formData.currentPlatform === "switch" && (
-              <span className="settings-badge">
-                {locale === 'zh' ? '当前生效' : 'Active'}
-              </span>
+            {formData.currentPlatform === 'switch' && (
+              <span className="settings-badge">{locale === 'zh' ? '当前生效' : 'Active'}</span>
             )}
           </button>
 
           <button
             type="button"
-            className={`settings-tab-btn ${activeTab === "wiiu" ? "active" : ""}`}
-            onClick={() => setActiveTab("wiiu")}
+            className={`settings-tab-btn ${activeTab === 'wiiu' ? 'active' : ''}`}
+            onClick={() => setActiveTab('wiiu')}
           >
             <Monitor size={16} />
             <span>{t('settings.wiiuTab')}</span>
-            {formData.currentPlatform === "wiiu" && (
-              <span className="settings-badge">
-                {locale === 'zh' ? '当前生效' : 'Active'}
-              </span>
+            {formData.currentPlatform === 'wiiu' && (
+              <span className="settings-badge">{locale === 'zh' ? '当前生效' : 'Active'}</span>
             )}
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="settings-form-body">
-          {activeTab === "general" && (
+          {activeTab === 'general' && (
             <GeneralSettingsPane
               settings={formData}
-              onPlatformChange={(platform: PlatformType) => setFormData((prev) => ({ ...prev, currentPlatform: platform }))}
-              onLanguageChange={(lang: string) => setFormData((prev) => ({ ...prev, language: lang }))}
+              onPlatformChange={(platform: PlatformType) =>
+                setFormData((prev) => ({ ...prev, currentPlatform: platform }))
+              }
+              onLanguageChange={(lang: string) =>
+                setFormData((prev) => ({ ...prev, language: lang }))
+              }
               onApplyBcmlPaths={handleApplyBcmlPaths}
               onShowToast={onShowToast}
             />
           )}
 
-          {activeTab === "switch" && (
+          {activeTab === 'switch' && (
             <SwitchSettingsPane
               data={formData.switch}
-              isCurrentPlatform={formData.currentPlatform === "switch"}
-              onSetCurrentPlatform={() => setFormData((prev) => ({ ...prev, currentPlatform: "switch" }))}
+              isCurrentPlatform={formData.currentPlatform === 'switch'}
+              onSetCurrentPlatform={() =>
+                setFormData((prev) => ({ ...prev, currentPlatform: 'switch' }))
+              }
               onChange={handleSwitchChange}
               onBrowse={handleSwitchBrowse}
             />
           )}
 
-          {activeTab === "wiiu" && (
+          {activeTab === 'wiiu' && (
             <WiiUSettingsPane
               data={formData.wiiu}
-              isCurrentPlatform={formData.currentPlatform === "wiiu"}
-              onSetCurrentPlatform={() => setFormData((prev) => ({ ...prev, currentPlatform: "wiiu" }))}
+              isCurrentPlatform={formData.currentPlatform === 'wiiu'}
+              onSetCurrentPlatform={() =>
+                setFormData((prev) => ({ ...prev, currentPlatform: 'wiiu' }))
+              }
               onChange={handleWiiUChange}
               onBrowse={handleWiiUBrowse}
             />
           )}
 
           {/* 底部操作按钮 */}
-          <div className="modal-footer settings-footer" style={{ justifyContent: "flex-end" }}>
+          <div className="modal-footer settings-footer" style={{ justifyContent: 'flex-end' }}>
             <div className="footer-actions">
               <button type="button" className="btn" onClick={onClose}>
                 {t('common.cancel')}
               </button>
               <button type="submit" className="btn primary">
-                <CheckCircle2 size={15} style={{ marginRight: "6px" }} />
+                <CheckCircle2 size={15} style={{ marginRight: '6px' }} />
                 {t('settings.saveBtn')}
               </button>
             </div>

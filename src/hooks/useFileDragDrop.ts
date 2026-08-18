@@ -1,12 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 
-import { invoke } from "@tauri-apps/api/core";
+import { invoke } from '@tauri-apps/api/core';
 
 // 文件拖拽处理 Hook，用于监听 Tauri 窗口与 Web 端的拖拽事件
 export function useFileDragDrop(
   openFileByPath: (path: string) => Promise<void>,
   openModFolderByPath: (path: string) => Promise<void>,
-  showToast: (text: string, type: 'success' | 'error' | 'info') => void
+  showToast: (text: string, type: 'success' | 'error' | 'info') => void,
 ) {
   const [isDraggingFile, setIsDraggingFile] = useState(false);
 
@@ -15,7 +15,7 @@ export function useFileDragDrop(
 
     const handleFileOpen = async (path: string) => {
       try {
-        const isDir = await invoke<boolean>("is_directory", { path });
+        const isDir = await invoke<boolean>('is_directory', { path });
         if (isDir) {
           showToast(`正在加载 Mod 文件夹...`, 'info');
           try {
@@ -27,7 +27,7 @@ export function useFileDragDrop(
           return;
         }
       } catch (err) {
-        console.error("Failed to check if path is directory", err);
+        console.error('Failed to check if path is directory', err);
       }
 
       const fileName = path.split(/[\/\\]/).pop() || path;
@@ -57,7 +57,7 @@ export function useFileDragDrop(
           }
         });
       } catch (err) {
-        console.error("Failed to setup drag drop listener:", err);
+        console.error('Failed to setup drag drop listener:', err);
       }
     };
 
@@ -72,7 +72,12 @@ export function useFileDragDrop(
 
     const handleDragLeave = (e: DragEvent) => {
       e.preventDefault();
-      if (e.clientX <= 0 || e.clientY <= 0 || e.clientX >= window.innerWidth || e.clientY >= window.innerHeight) {
+      if (
+        e.clientX <= 0 ||
+        e.clientY <= 0 ||
+        e.clientX >= window.innerWidth ||
+        e.clientY >= window.innerHeight
+      ) {
         setIsDraggingFile(false);
       }
     };

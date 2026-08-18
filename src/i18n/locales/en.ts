@@ -18,10 +18,13 @@ export const en: TranslationSchema = {
     key: 'Key',
     browse: 'Browse...',
     ok: 'OK',
+    add: 'Add...',
     success: 'Success',
     error: 'Error',
     warning: 'Warning',
     info: 'Info',
+    fps: 'FPS',
+    fpsTooltip: 'Real-time rendering frame rate',
   },
   menu: {
     file: 'File',
@@ -234,8 +237,10 @@ export const en: TranslationSchema = {
     },
     renameFile: {
       title: 'Rename File',
-      label: 'New File Name',
-      placeholder: 'Enter new file name...',
+      label: 'New Name:',
+      placeholder: 'Enter new file name',
+      originalFileName: 'Original File Name',
+      includeExtension: 'Include file extension',
     },
   },
   settings: {
@@ -259,12 +264,15 @@ export const en: TranslationSchema = {
     wiiuDlcDir: 'Wii U DLC Content Directory (DLC 0010)',
     wiiuExportDir: 'Wii U Mod Export Path',
     storageCache: 'Temporary Snapshots & Autosave Cache',
-    storageCacheDesc: 'Event Studio automatically saves crash recovery snapshots during editing. You can clear temporary cache anytime.',
+    storageCacheDesc:
+      'Event Studio automatically saves crash recovery snapshots during editing. You can clear temporary cache anytime.',
     cleanAutosaveBtn: 'Clean Autosave Cache',
-    cleanAutosaveConfirm: 'Are you sure you want to clear all temporary autosave snapshots and history cache?',
+    cleanAutosaveConfirm:
+      'Are you sure you want to clear all temporary autosave snapshots and history cache?',
     cleanAutosaveSuccess: 'Temporary cache cleared successfully!',
     importBcml: 'BCML Path Synchronization',
-    importBcmlDesc: 'One-click import game, update, and DLC directories from system BCML settings into current preferences',
+    importBcmlDesc:
+      'One-click import game, update, and DLC directories from system BCML settings into current preferences',
     importBcmlBtn: 'Import Paths from BCML',
     importBcmlSuccess: 'Successfully imported game paths from BCML!',
     importBcmlNoData: 'No valid game paths found in BCML configuration',
@@ -292,10 +300,12 @@ export const en: TranslationSchema = {
     tabCredits: 'Credits & Acknowledgements',
     rustLibsTitle: 'Backend Core Libraries (Rust)',
     frontendLibsTitle: 'Frontend Libraries (React / TypeScript)',
-    creditsTip: 'The development of this software is made possible thanks to the outstanding work of the Nintendo reverse engineering and modding community!',
+    creditsTip:
+      'The development of this software is made possible thanks to the outstanding work of the Nintendo reverse engineering and modding community!',
     coreContributors: 'Core Community Contributors',
     communityTitle: 'Open Source Frameworks & Platforms',
-    communityDesc: 'Thanks to the Tauri team for providing an exceptional desktop architecture, and to React Flow & Monaco Editor for providing world-class visualization components.',
+    communityDesc:
+      'Thanks to the Tauri team for providing an exceptional desktop architecture, and to React Flow & Monaco Editor for providing world-class visualization components.',
   },
   help: enHelp,
   tabs: {

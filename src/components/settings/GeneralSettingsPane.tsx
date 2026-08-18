@@ -1,8 +1,17 @@
-import { useState, useEffect } from "react";
-import { Monitor, Gamepad2, Globe, HardDrive, Trash2, Cpu, Sparkles, FolderInput } from "lucide-react";
-import { invoke } from "@tauri-apps/api/core";
-import { PlatformType, SUPPORTED_LANGUAGES, GamePathSettings } from "../../types/settings";
-import { useTranslation, Locale } from "../../i18n";
+import { useState, useEffect } from 'react';
+import {
+  Monitor,
+  Gamepad2,
+  Globe,
+  HardDrive,
+  Trash2,
+  Cpu,
+  Sparkles,
+  FolderInput,
+} from 'lucide-react';
+import { invoke } from '@tauri-apps/api/core';
+import { PlatformType, SUPPORTED_LANGUAGES, GamePathSettings } from '../../types/settings';
+import { useTranslation, Locale } from '../../i18n';
 
 interface GeneralSettingsPaneProps {
   settings: GamePathSettings;
@@ -13,9 +22,9 @@ interface GeneralSettingsPaneProps {
     wiiuUpdate?: string,
     wiiuDlc?: string,
     switchGame?: string,
-    switchDlc?: string
+    switchDlc?: string,
   ) => void;
-  onShowToast?: (text: string, type?: "success" | "error" | "info") => void;
+  onShowToast?: (text: string, type?: 'success' | 'error' | 'info') => void;
 }
 
 interface AiDataStatus {
@@ -40,9 +49,11 @@ export default function GeneralSettingsPane({
   const [isImportingBcml, setIsImportingBcml] = useState(false);
 
   const fetchAiStatus = () => {
-    const gDir = settings.currentPlatform === 'wiiu' ? settings.wiiu.gameDir : settings.switch.gameDir;
-    const uDir = settings.currentPlatform === 'wiiu' ? settings.wiiu.updateDir : settings.switch.gameDir;
-    invoke<AiDataStatus>("get_ai_data_status", {
+    const gDir =
+      settings.currentPlatform === 'wiiu' ? settings.wiiu.gameDir : settings.switch.gameDir;
+    const uDir =
+      settings.currentPlatform === 'wiiu' ? settings.wiiu.updateDir : settings.switch.gameDir;
+    invoke<AiDataStatus>('get_ai_data_status', {
       gameDir: gDir || null,
       updateDir: uDir || null,
       customDumpDir: settings.customAiDumpDir || null,
@@ -59,17 +70,22 @@ export default function GeneralSettingsPane({
   const handleUnpackAi = async () => {
     setIsUnpacking(true);
     try {
-      const gDir = settings.currentPlatform === 'wiiu' ? settings.wiiu.gameDir : settings.switch.gameDir;
-      const uDir = settings.currentPlatform === 'wiiu' ? settings.wiiu.updateDir : settings.switch.gameDir;
-      const res = await invoke<{ output_dir: string; actors_unpacked: number }>("unpack_game_ai_data", {
-        gameDir: gDir || null,
-        updateDir: uDir || null,
-        customOutputDir: settings.customAiDumpDir || null,
-      });
-      onShowToast?.(`${t('autofill.unpackAiSuccess')}${res.output_dir}`, "success");
+      const gDir =
+        settings.currentPlatform === 'wiiu' ? settings.wiiu.gameDir : settings.switch.gameDir;
+      const uDir =
+        settings.currentPlatform === 'wiiu' ? settings.wiiu.updateDir : settings.switch.gameDir;
+      const res = await invoke<{ output_dir: string; actors_unpacked: number }>(
+        'unpack_game_ai_data',
+        {
+          gameDir: gDir || null,
+          updateDir: uDir || null,
+          customOutputDir: settings.customAiDumpDir || null,
+        },
+      );
+      onShowToast?.(`${t('autofill.unpackAiSuccess')}${res.output_dir}`, 'success');
       fetchAiStatus();
     } catch (err) {
-      onShowToast?.(`${t('autofill.unpackAiFailed')}: ${err}`, "error");
+      onShowToast?.(`${t('autofill.unpackAiFailed')}: ${err}`, 'error');
     } finally {
       setIsUnpacking(false);
     }
@@ -87,7 +103,7 @@ export default function GeneralSettingsPane({
         wiiu_dlc_dir?: string | null;
         switch_game_dir?: string | null;
         switch_dlc_dir?: string | null;
-      }>("import_bcml_paths");
+      }>('import_bcml_paths');
 
       if (res.success) {
         onApplyBcmlPaths?.(
@@ -97,12 +113,12 @@ export default function GeneralSettingsPane({
           res.switch_game_dir || undefined,
           res.switch_dlc_dir || undefined,
         );
-        onShowToast?.(t('settings.importBcmlSuccess'), "success");
+        onShowToast?.(t('settings.importBcmlSuccess'), 'success');
       } else {
-        onShowToast?.(res.message || t('settings.importBcmlNoData'), "info");
+        onShowToast?.(res.message || t('settings.importBcmlNoData'), 'info');
       }
     } catch (err) {
-      onShowToast?.(`${err}`, "error");
+      onShowToast?.(`${err}`, 'error');
     } finally {
       setIsImportingBcml(false);
     }
@@ -112,10 +128,10 @@ export default function GeneralSettingsPane({
   const handleCleanAutosave = async () => {
     if (!confirm(t('settings.cleanAutosaveConfirm'))) return;
     try {
-      await invoke<number>("clean_autosave_cache");
-      onShowToast?.(t('settings.cleanAutosaveSuccess'), "success");
+      await invoke<number>('clean_autosave_cache');
+      onShowToast?.(t('settings.cleanAutosaveSuccess'), 'success');
     } catch (err) {
-      onShowToast?.(`清理失败: ${err}`, "error");
+      onShowToast?.(`清理失败: ${err}`, 'error');
     }
   };
 
@@ -147,13 +163,13 @@ export default function GeneralSettingsPane({
           <span className="field-desc">{t('settings.defaultPlatformDesc')}</span>
         </label>
         <div className="platform-radio-group">
-          <label className={`radio-card ${settings.currentPlatform === "switch" ? "checked" : ""}`}>
+          <label className={`radio-card ${settings.currentPlatform === 'switch' ? 'checked' : ''}`}>
             <input
               type="radio"
               name="platform"
               value="switch"
-              checked={settings.currentPlatform === "switch"}
-              onChange={() => onPlatformChange("switch")}
+              checked={settings.currentPlatform === 'switch'}
+              onChange={() => onPlatformChange('switch')}
             />
             <Gamepad2 size={20} />
             <div className="radio-card-info">
@@ -162,13 +178,13 @@ export default function GeneralSettingsPane({
             </div>
           </label>
 
-          <label className={`radio-card ${settings.currentPlatform === "wiiu" ? "checked" : ""}`}>
+          <label className={`radio-card ${settings.currentPlatform === 'wiiu' ? 'checked' : ''}`}>
             <input
               type="radio"
               name="platform"
               value="wiiu"
-              checked={settings.currentPlatform === "wiiu"}
-              onChange={() => onPlatformChange("wiiu")}
+              checked={settings.currentPlatform === 'wiiu'}
+              onChange={() => onPlatformChange('wiiu')}
             />
             <Monitor size={20} />
             <div className="radio-card-info">
@@ -199,7 +215,10 @@ export default function GeneralSettingsPane({
       </div>
 
       {/* BCML 路径快捷导入 */}
-      <div className="settings-field" style={{ marginTop: '8px', paddingTop: '12px', borderTop: '1px solid #262626' }}>
+      <div
+        className="settings-field"
+        style={{ marginTop: '8px', paddingTop: '12px', borderTop: '1px solid #262626' }}
+      >
         <label>
           <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <FolderInput size={16} className="text-emerald" />
@@ -208,21 +227,34 @@ export default function GeneralSettingsPane({
           <span className="field-desc">{t('settings.importBcmlDesc')}</span>
         </label>
         <div>
-          <button 
-            type="button" 
-            className="browse-btn" 
-            style={{ color: '#34d399', borderColor: 'rgba(52, 211, 153, 0.4)', background: 'rgba(52, 211, 153, 0.08)' }}
+          <button
+            type="button"
+            className="browse-btn"
+            style={{
+              color: '#34d399',
+              borderColor: 'rgba(52, 211, 153, 0.4)',
+              background: 'rgba(52, 211, 153, 0.08)',
+            }}
             onClick={handleImportBcml}
             disabled={isImportingBcml}
           >
             <FolderInput size={14} />
-            <span>{isImportingBcml ? (locale === 'zh' ? '正在读取...' : 'Reading...') : t('settings.importBcmlBtn')}</span>
+            <span>
+              {isImportingBcml
+                ? locale === 'zh'
+                  ? '正在读取...'
+                  : 'Reading...'
+                : t('settings.importBcmlBtn')}
+            </span>
           </button>
         </div>
       </div>
 
       {/* 游戏 AI 数据状态与一键解包 */}
-      <div className="settings-field" style={{ marginTop: '8px', paddingTop: '12px', borderTop: '1px solid #262626' }}>
+      <div
+        className="settings-field"
+        style={{ marginTop: '8px', paddingTop: '12px', borderTop: '1px solid #262626' }}
+      >
         <label>
           <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <Cpu size={16} className="text-cyan" />
@@ -235,21 +267,34 @@ export default function GeneralSettingsPane({
           </span>
         </label>
         <div>
-          <button 
-            type="button" 
-            className="browse-btn" 
-            style={{ color: '#38bdf8', borderColor: 'rgba(56, 189, 248, 0.4)', background: 'rgba(56, 189, 248, 0.08)' }}
+          <button
+            type="button"
+            className="browse-btn"
+            style={{
+              color: '#38bdf8',
+              borderColor: 'rgba(56, 189, 248, 0.4)',
+              background: 'rgba(56, 189, 248, 0.08)',
+            }}
             onClick={handleUnpackAi}
             disabled={isUnpacking}
           >
             <Sparkles size={14} />
-            <span>{isUnpacking ? (locale === 'zh' ? '正在解包...' : 'Unpacking...') : t('autofill.unpackAi')}</span>
+            <span>
+              {isUnpacking
+                ? locale === 'zh'
+                  ? '正在解包...'
+                  : 'Unpacking...'
+                : t('autofill.unpackAi')}
+            </span>
           </button>
         </div>
       </div>
 
       {/* 临时自动保存快照与缓存管理 */}
-      <div className="settings-field" style={{ marginTop: '8px', paddingTop: '12px', borderTop: '1px solid #262626' }}>
+      <div
+        className="settings-field"
+        style={{ marginTop: '8px', paddingTop: '12px', borderTop: '1px solid #262626' }}
+      >
         <label>
           <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <HardDrive size={16} className="text-amber" />
@@ -258,10 +303,14 @@ export default function GeneralSettingsPane({
           <span className="field-desc">{t('settings.storageCacheDesc')}</span>
         </label>
         <div>
-          <button 
-            type="button" 
-            className="browse-btn" 
-            style={{ color: '#f87171', borderColor: 'rgba(239, 68, 68, 0.4)', background: 'rgba(239, 68, 68, 0.08)' }}
+          <button
+            type="button"
+            className="browse-btn"
+            style={{
+              color: '#f87171',
+              borderColor: 'rgba(239, 68, 68, 0.4)',
+              background: 'rgba(239, 68, 68, 0.08)',
+            }}
             onClick={handleCleanAutosave}
           >
             <Trash2 size={14} />

@@ -51,12 +51,13 @@ const FileTreeNode: React.FC<{
         </div>
       );
     }
-    
+
     return (
       <div className="tree-icon-wrapper file-wrapper">
         {node.name.toLowerCase().endsWith('.json') ? (
           <FileJson size={14} className="tree-icon file-json" />
-        ) : node.name.toLowerCase().endsWith('.sbeventpack') || node.name.toLowerCase().endsWith('.pack') ? (
+        ) : node.name.toLowerCase().endsWith('.sbeventpack') ||
+          node.name.toLowerCase().endsWith('.pack') ? (
           <Archive size={14} className="tree-icon file-pack" />
         ) : (
           <File size={14} className="tree-icon file-default" />
@@ -95,7 +96,12 @@ const FileTreeNode: React.FC<{
   );
 };
 
-const FileTree: React.FC<FileTreeProps> = ({ nodes, selectedPath, onFileSelect, onContextMenu }) => {
+const FileTree: React.FC<FileTreeProps> = ({
+  nodes,
+  selectedPath,
+  onFileSelect,
+  onContextMenu,
+}) => {
   if (!nodes || nodes.length === 0) {
     return <div className="tree-empty">No files found.</div>;
   }

@@ -8,7 +8,13 @@ import {
   ReactFlowInstance,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { EventNode, EntryPointNode, AnimatedEdge, FlowAnimationContext } from './components/FlowNodes';
+import {
+  EventNode,
+  EntryPointNode,
+  AnimatedEdge,
+  FlowAnimationContext,
+} from './components/FlowNodes';
+import { FpsCounter } from './components/FpsCounter';
 import { getLayoutedElements } from './utils/flowLayout';
 import { useFlowBuilder } from './hooks/useFlowBuilder';
 
@@ -58,19 +64,23 @@ export default function FlowMap({
   onEdgeContextMenu,
   onPaneClick,
   knifeMode,
-  onRenameEntryPoint
+  onRenameEntryPoint,
 }: FlowMapProps) {
   const [nodes, setNodes, onNodesChange] = useNodesState<any>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<any>([]);
 
   const currentFlowName = useRef<string | null>(null);
   const dragSource = useRef<string | null>(null);
-  const lastInteractionPos = useRef<{x: number, y: number} | null>(null);
+  const lastInteractionPos = useRef<{ x: number; y: number } | null>(null);
   const prevExpandAllParams = useRef<boolean | undefined>(undefined);
   const prevFocusNodeId = useRef<string | null | undefined>(undefined);
   const [rfInstance, setRfInstance] = useState<ReactFlowInstance | null>(null);
 
-  const { initialNodes, initialEdges, currentFlowName: newFlowName } = useFlowBuilder({
+  const {
+    initialNodes,
+    initialEdges,
+    currentFlowName: newFlowName,
+  } = useFlowBuilder({
     evflData,
     focusNodeId,
     expandAllParams,
@@ -79,7 +89,7 @@ export default function FlowMap({
     onNodeSelect,
     onNodeDoubleClick,
     onNodeContextMenu,
-    onRenameEntryPoint
+    onRenameEntryPoint,
   });
 
   // 处理布局和位置持久化
@@ -94,33 +104,38 @@ export default function FlowMap({
     const isNewFile = currentFlowName.current !== newFlowName;
     currentFlowName.current = newFlowName;
 
-    const isExpandChanged = prevExpandAllParams.current !== undefined && prevExpandAllParams.current !== expandAllParams;
+    const isExpandChanged =
+      prevExpandAllParams.current !== undefined && prevExpandAllParams.current !== expandAllParams;
     prevExpandAllParams.current = expandAllParams;
 
-    const isFocusChanged = prevFocusNodeId.current !== undefined && prevFocusNodeId.current !== focusNodeId;
+    const isFocusChanged =
+      prevFocusNodeId.current !== undefined && prevFocusNodeId.current !== focusNodeId;
     prevFocusNodeId.current = focusNodeId;
 
-    const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(initialNodes, initialEdges);
+    const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
+      initialNodes,
+      initialEdges,
+    );
 
     setNodes((prevNodes) => {
       if (isNewFile || prevNodes.length === 0 || isExpandChanged || isFocusChanged) {
         return layoutedNodes;
       }
-      
+
       const prevPositions = new Map<string, { x: number; y: number }>();
-      prevNodes.forEach(n => {
+      prevNodes.forEach((n) => {
         const key = n.data?.name ? `name-${n.data.name}` : `id-${n.id}`;
         prevPositions.set(key, { ...n.position });
         prevPositions.set(`id-${n.id}`, { ...n.position });
       });
 
       // 1. 查找新增的普通事件节点并进行智能定位
-      const newEventNodes = layoutedNodes.filter(node => {
+      const newEventNodes = layoutedNodes.filter((node) => {
         const key = node.data?.name ? `name-${node.data.name}` : `id-${node.id}`;
         return node.type !== 'entryPointNode' && !prevPositions.has(key);
       });
 
-      newEventNodes.forEach(newNode => {
+      newEventNodes.forEach((newNode) => {
         const newKey = newNode.data?.name ? `name-${newNode.data.name}` : `id-${newNode.id}`;
         const idKey = `id-${newNode.id}`;
 
@@ -135,15 +150,20 @@ export default function FlowMap({
           return;
         }
 
-        const incomingEdge = layoutedEdges.find(e => e.target === newNode.id && !e.source.startsWith('ep-'));
-        const outgoingEdge = layoutedEdges.find(e => e.source === newNode.id);
+        const incomingEdge = layoutedEdges.find(
+          (e) => e.target === newNode.id && !e.source.startsWith('ep-'),
+        );
+        const outgoingEdge = layoutedEdges.find((e) => e.source === newNode.id);
 
         if (incomingEdge && outgoingEdge) {
           // 在已有流程连线中间插入（例如“在上方插入”或者“在下方插入”到中间）
-          const targetNode = layoutedNodes.find(n => n.id === outgoingEdge.target);
+          const targetNode = layoutedNodes.find((n) => n.id === outgoingEdge.target);
           if (targetNode) {
-            const targetKey = targetNode.data?.name ? `name-${targetNode.data.name}` : `id-${targetNode.id}`;
-            const targetPos = prevPositions.get(targetKey) || prevPositions.get(`id-${targetNode.id}`);
+            const targetKey = targetNode.data?.name
+              ? `name-${targetNode.data.name}`
+              : `id-${targetNode.id}`;
+            const targetPos =
+              prevPositions.get(targetKey) || prevPositions.get(`id-${targetNode.id}`);
             if (targetPos) {
               const insertY = targetPos.y;
               const shiftDistance = 180;
@@ -159,7 +179,7 @@ export default function FlowMap({
           }
         } else if (incomingEdge && !outgoingEdge) {
           // 在叶子节点下方插入新节点（通过右键节点菜单“添加子节点”）
-          const srcNode = layoutedNodes.find(n => n.id === incomingEdge.source);
+          const srcNode = layoutedNodes.find((n) => n.id === incomingEdge.source);
           if (srcNode) {
             const srcKey = srcNode.data?.name ? `name-${srcNode.data.name}` : `id-${srcNode.id}`;
             const srcPos = prevPositions.get(srcKey) || prevPositions.get(`id-${srcNode.id}`);
@@ -176,10 +196,13 @@ export default function FlowMap({
           }
         } else if (!incomingEdge && outgoingEdge) {
           // 在根节点上方插入新父节点（通过右键节点菜单“添加父节点”）
-          const targetNode = layoutedNodes.find(n => n.id === outgoingEdge.target);
+          const targetNode = layoutedNodes.find((n) => n.id === outgoingEdge.target);
           if (targetNode) {
-            const targetKey = targetNode.data?.name ? `name-${targetNode.data.name}` : `id-${targetNode.id}`;
-            const targetPos = prevPositions.get(targetKey) || prevPositions.get(`id-${targetNode.id}`);
+            const targetKey = targetNode.data?.name
+              ? `name-${targetNode.data.name}`
+              : `id-${targetNode.id}`;
+            const targetPos =
+              prevPositions.get(targetKey) || prevPositions.get(`id-${targetNode.id}`);
             if (targetPos) {
               const insertY = targetPos.y;
               prevPositions.forEach((pos) => {
@@ -195,26 +218,37 @@ export default function FlowMap({
       });
 
       // 2. 映射每个节点的最终渲染位置
-      return layoutedNodes.map(node => {
+      return layoutedNodes.map((node) => {
         const key = node.data?.name ? `name-${node.data.name}` : `id-${node.id}`;
-        
+
         if (prevPositions.has(key)) return { ...node, position: prevPositions.get(key) };
-        if (prevPositions.has(`id-${node.id}`)) return { ...node, position: prevPositions.get(`id-${node.id}`) };
+        if (prevPositions.has(`id-${node.id}`))
+          return { ...node, position: prevPositions.get(`id-${node.id}`) };
 
         // 特别处理新增入口点节点 (entryPointNode) 的定位：始终保持在子节点正上方居中
         if (node.type === 'entryPointNode') {
-          const edgeToTarget = layoutedEdges.find(e => e.source === node.id);
+          const edgeToTarget = layoutedEdges.find((e) => e.source === node.id);
           if (edgeToTarget) {
-            const targetNode = layoutedNodes.find(n => n.id === edgeToTarget.target);
+            const targetNode = layoutedNodes.find((n) => n.id === edgeToTarget.target);
             if (targetNode) {
-              const targetKey = targetNode.data?.name ? `name-${targetNode.data.name}` : `id-${targetNode.id}`;
-              const targetPos = prevPositions.get(targetKey) || prevPositions.get(`id-${targetNode.id}`) || targetNode.position;
+              const targetKey = targetNode.data?.name
+                ? `name-${targetNode.data.name}`
+                : `id-${targetNode.id}`;
+              const targetPos =
+                prevPositions.get(targetKey) ||
+                prevPositions.get(`id-${targetNode.id}`) ||
+                targetNode.position;
               if (targetPos) {
-                const epsToTarget = layoutedEdges.filter(e => e.target === targetNode.id && e.source.startsWith('ep-'));
-                const epIdx = epsToTarget.findIndex(e => e.source === node.id);
+                const epsToTarget = layoutedEdges.filter(
+                  (e) => e.target === targetNode.id && e.source.startsWith('ep-'),
+                );
+                const epIdx = epsToTarget.findIndex((e) => e.source === node.id);
                 const totalEps = epsToTarget.length;
                 const offsetX = totalEps > 1 ? (epIdx - (totalEps - 1) / 2) * 160 : 0;
-                return { ...node, position: { x: targetPos.x + 35 + offsetX, y: targetPos.y - 70 } };
+                return {
+                  ...node,
+                  position: { x: targetPos.x + 35 + offsetX, y: targetPos.y - 70 },
+                };
               }
             }
           }
@@ -225,17 +259,25 @@ export default function FlowMap({
           const pos = lastInteractionPos.current;
           lastInteractionPos.current = null;
           const nodeWidth = node.type === 'entryPointNode' ? 150 : 220;
-          return { ...node, position: { x: Math.round(pos.x - nodeWidth / 2), y: Math.round(pos.y) } };
+          return {
+            ...node,
+            position: { x: Math.round(pos.x - nodeWidth / 2), y: Math.round(pos.y) },
+          };
         }
-        
+
         // 为普通新建独立节点寻找邻居位置
-        const connectedEdges = layoutedEdges.filter(e => e.source === node.id || e.target === node.id);
+        const connectedEdges = layoutedEdges.filter(
+          (e) => e.source === node.id || e.target === node.id,
+        );
         for (const edge of connectedEdges) {
           const neighborId = edge.source === node.id ? edge.target : edge.source;
-          const neighborNode = layoutedNodes.find(n => n.id === neighborId);
+          const neighborNode = layoutedNodes.find((n) => n.id === neighborId);
           if (neighborNode) {
-            const neighborKey = neighborNode.data?.name ? `name-${neighborNode.data.name}` : `id-${neighborNode.id}`;
-            const neighborPos = prevPositions.get(neighborKey) || prevPositions.get(`id-${neighborNode.id}`);
+            const neighborKey = neighborNode.data?.name
+              ? `name-${neighborNode.data.name}`
+              : `id-${neighborNode.id}`;
+            const neighborPos =
+              prevPositions.get(neighborKey) || prevPositions.get(`id-${neighborNode.id}`);
             if (neighborPos) {
               if (edge.source === node.id) {
                 return { ...node, position: { x: neighborPos.x, y: neighborPos.y - 180 } };
@@ -290,22 +332,38 @@ export default function FlowMap({
           onPaneContextMenu={(e) => {
             e.preventDefault();
             if (rfInstance) {
-              lastInteractionPos.current = rfInstance.screenToFlowPosition({ x: e.clientX, y: e.clientY });
+              lastInteractionPos.current = rfInstance.screenToFlowPosition({
+                x: e.clientX,
+                y: e.clientY,
+              });
             }
             onPaneContextMenu(e);
           }}
-          onConnectStart={(_event, params) => { dragSource.current = params.nodeId; }}
+          onConnectStart={(_event, params) => {
+            dragSource.current = params.nodeId;
+          }}
           onConnect={(params) => {
             if (params.source && params.target) onEdgeConnect(params.source, params.target);
           }}
           onConnectEnd={(event) => {
-            const targetIsNodeOrHandle = (event.target as Element)?.closest?.('.react-flow__handle, .react-flow__node');
+            const targetIsNodeOrHandle = (event.target as Element)?.closest?.(
+              '.react-flow__handle, .react-flow__node',
+            );
             if (!targetIsNodeOrHandle && dragSource.current) {
               if (rfInstance) {
-                let clientX = 0, clientY = 0;
-                if (event instanceof MouseEvent) { clientX = event.clientX; clientY = event.clientY; }
-                else if (window.TouchEvent && event instanceof TouchEvent) { clientX = event.changedTouches[0].clientX; clientY = event.changedTouches[0].clientY; }
-                lastInteractionPos.current = rfInstance.screenToFlowPosition({ x: clientX, y: clientY });
+                let clientX = 0,
+                  clientY = 0;
+                if (event instanceof MouseEvent) {
+                  clientX = event.clientX;
+                  clientY = event.clientY;
+                } else if (window.TouchEvent && event instanceof TouchEvent) {
+                  clientX = event.changedTouches[0].clientX;
+                  clientY = event.changedTouches[0].clientY;
+                }
+                lastInteractionPos.current = rfInstance.screenToFlowPosition({
+                  x: clientX,
+                  y: clientY,
+                });
               }
               onEdgeDrop(event, dragSource.current);
             }
@@ -321,7 +379,9 @@ export default function FlowMap({
           maxZoom={2}
         >
           <Background color="#383838" gap={16} />
-          <Controls />
+          <Controls>
+            <FpsCounter />
+          </Controls>
         </ReactFlow>
       </FlowAnimationContext.Provider>
     </div>

@@ -13,7 +13,7 @@ export const generateUniqueName = (items: any[], prefix: string) => {
 export const createNewNode = (evflData: any, actionType: string, sourceNodeId: string | null) => {
   if (!evflData) return null;
   const newEvflData = structuredClone(evflData);
-  
+
   // 处理入口点创建
   if (actionType === 'entry') {
     if (!newEvflData.flowchart.entry_points) newEvflData.flowchart.entry_points = [];
@@ -21,21 +21,35 @@ export const createNewNode = (evflData: any, actionType: string, sourceNodeId: s
     newEvflData.flowchart.entry_points.push({
       name: newName,
       main_event: { v: null, idx: 65535 },
-      sub_flow_event_indices: []
+      sub_flow_event_indices: [],
     });
     return newEvflData;
   }
 
   const newIdx = newEvflData.flowchart.events.length;
   let newEventData: any = {};
-  
+
   // 根据不同操作类型初始化数据结构
   switch (actionType) {
     case 'action':
-      newEventData = { Action: { nxt: { v: null, idx: 65535 }, actor: { v: null, idx: 65535 }, actor_action: { v: null, idx: 65535 }, params: { data: {} } } };
+      newEventData = {
+        Action: {
+          nxt: { v: null, idx: 65535 },
+          actor: { v: null, idx: 65535 },
+          actor_action: { v: null, idx: 65535 },
+          params: { data: {} },
+        },
+      };
       break;
     case 'switch':
-      newEventData = { Switch: { cases: { "0": { v: null, idx: 65535 }, "1": { v: null, idx: 65535 } }, actor: { v: null, idx: 65535 }, actor_query: { v: null, idx: 65535 }, params: { data: {} } } };
+      newEventData = {
+        Switch: {
+          cases: { '0': { v: null, idx: 65535 }, '1': { v: null, idx: 65535 } },
+          actor: { v: null, idx: 65535 },
+          actor_query: { v: null, idx: 65535 },
+          params: { data: {} },
+        },
+      };
       break;
     case 'fork':
       newEventData = { Fork: { join: { v: null, idx: 65535 }, forks: [] } };
@@ -44,14 +58,21 @@ export const createNewNode = (evflData: any, actionType: string, sourceNodeId: s
       newEventData = { Join: { nxt: { v: null, idx: 65535 } } };
       break;
     case 'sub_flow':
-      newEventData = { SubFlow: { nxt: { v: null, idx: 65535 }, res_flowchart_name: "", entry_point_name: "", params: { data: {} } } };
+      newEventData = {
+        SubFlow: {
+          nxt: { v: null, idx: 65535 },
+          res_flowchart_name: '',
+          entry_point_name: '',
+          params: { data: {} },
+        },
+      };
       break;
   }
 
   // 推入新事件
   newEvflData.flowchart.events.push({
     name: generateUniqueName(newEvflData.flowchart.events, 'Event'),
-    data: newEventData
+    data: newEventData,
   });
 
   // 如果提供了源节点ID，则链接到源节点
@@ -64,7 +85,7 @@ export const createNewNode = (evflData: any, actionType: string, sourceNodeId: s
       const srcEvent = newEvflData.flowchart.events[srcIdx];
       const type = Object.keys(srcEvent.data)[0];
       const data = srcEvent.data[type];
-      
+
       if (data.nxt) {
         data.nxt.idx = newIdx;
       } else if (type === 'Fork' && data.forks) {
@@ -83,9 +104,9 @@ export const createNewNode = (evflData: any, actionType: string, sourceNodeId: s
 export const linkNodes = (evflData: any, sourceNodeId: string, targetNodeId: string) => {
   if (!evflData) return null;
   const newEvflData = structuredClone(evflData);
-  
+
   const targetIdx = parseInt(targetNodeId);
-  
+
   if (sourceNodeId.startsWith('ep-')) {
     const epIndex = parseInt(sourceNodeId.replace('ep-', ''));
     newEvflData.flowchart.entry_points[epIndex].main_event.idx = targetIdx;
@@ -94,7 +115,7 @@ export const linkNodes = (evflData: any, sourceNodeId: string, targetNodeId: str
     const srcEvent = newEvflData.flowchart.events[srcIdx];
     const type = Object.keys(srcEvent.data)[0];
     const data = srcEvent.data[type];
-    
+
     // 根据节点类型连接到不同属性上
     if (data.nxt) {
       data.nxt.idx = targetIdx;
@@ -115,7 +136,7 @@ export const deleteEdges = (evflData: any, edges: any[]) => {
   const newEvflData = structuredClone(evflData);
   let modified = false;
 
-  edges.forEach(edge => {
+  edges.forEach((edge) => {
     if (edge.id.includes('virtual')) return;
 
     const sourceId = edge.source;
@@ -130,10 +151,10 @@ export const deleteEdges = (evflData: any, edges: any[]) => {
       const srcIdx = parseInt(sourceId);
       const srcEvent = newEvflData.flowchart.events[srcIdx];
       if (!srcEvent) return;
-      
+
       const type = Object.keys(srcEvent.data)[0];
       const data = srcEvent.data[type];
-      
+
       // 清除事件节点的连接
       if (data.nxt && data.nxt.idx === parseInt(targetId)) {
         data.nxt.idx = 65535;
@@ -171,7 +192,7 @@ export const addEntryPoint = (evflData: any, nodeId: string) => {
   newEvflData.flowchart.entry_points.push({
     name: newName,
     main_event: { v: null, idx: parseInt(nodeId) },
-    sub_flow_event_indices: []
+    sub_flow_event_indices: [],
   });
   return newEvflData;
 };
@@ -185,11 +206,16 @@ export const removeEntryPoint = (evflData: any, nodeId: string) => {
 };
 
 // 重命名入口点
-export const renameEntryPoint = (evflData: any, nodeIdOrIndex: string | number, newName: string) => {
+export const renameEntryPoint = (
+  evflData: any,
+  nodeIdOrIndex: string | number,
+  newName: string,
+) => {
   const newEvflData = structuredClone(evflData);
-  const epIndex = typeof nodeIdOrIndex === 'number' 
-    ? nodeIdOrIndex 
-    : parseInt(String(nodeIdOrIndex).replace('ep-', ''));
+  const epIndex =
+    typeof nodeIdOrIndex === 'number'
+      ? nodeIdOrIndex
+      : parseInt(String(nodeIdOrIndex).replace('ep-', ''));
   if (newEvflData.flowchart?.entry_points?.[epIndex]) {
     newEvflData.flowchart.entry_points[epIndex].name = newName;
   }
@@ -201,7 +227,7 @@ export const addNewParent = (evflData: any, targetIdxStr: string) => {
   const newEvflData = structuredClone(evflData);
   const newIdx = newEvflData.flowchart.events.length;
   const targetIdx = parseInt(targetIdxStr);
-  
+
   // 辅助函数：重定向索引
   const redirectIdx = (ptr: any) => {
     if (ptr && ptr.idx === targetIdx) {
@@ -216,7 +242,7 @@ export const addNewParent = (evflData: any, targetIdxStr: string) => {
       redirectIdx(ep.sub_flow_event);
     });
   }
-  
+
   // 重定向其他事件节点的连接
   newEvflData.flowchart.events.forEach((ev: any) => {
     const type = Object.keys(ev.data)[0];
@@ -235,9 +261,9 @@ export const addNewParent = (evflData: any, targetIdxStr: string) => {
         nxt: { v: null, idx: targetIdx },
         actor: { v: null, idx: 65535 },
         actor_action: { v: null, idx: 65535 },
-        params: { data: {} }
-      }
-    }
+        params: { data: {} },
+      },
+    },
   });
   return newEvflData;
 };
@@ -247,10 +273,10 @@ export const addNewChild = (evflData: any, srcIdxStr: string) => {
   const newEvflData = structuredClone(evflData);
   const newIdx = newEvflData.flowchart.events.length;
   const srcIdx = parseInt(srcIdxStr);
-  
+
   const type = Object.keys(newEvflData.flowchart.events[srcIdx].data)[0];
   const data = newEvflData.flowchart.events[srcIdx].data[type];
-  
+
   let oldNxtIdx = 65535;
   if (data.nxt) {
     oldNxtIdx = data.nxt.idx;
@@ -265,9 +291,9 @@ export const addNewChild = (evflData: any, srcIdxStr: string) => {
         nxt: { v: null, idx: oldNxtIdx },
         actor: { v: null, idx: 65535 },
         actor_action: { v: null, idx: 65535 },
-        params: { data: {} }
-      }
-    }
+        params: { data: {} },
+      },
+    },
   });
   return newEvflData;
 };
@@ -288,12 +314,12 @@ export const unlinkChild = (evflData: any, srcIdxStr: string) => {
 export const removeEvent = (evflData: any, deletedIdxStr: string) => {
   const newEvflData = structuredClone(evflData);
   const deletedIdx = parseInt(deletedIdxStr);
-  
+
   let nextEventIdx = 65535;
   const deletedEv = newEvflData.flowchart.events[deletedIdx];
   const deletedType = Object.keys(deletedEv.data)[0];
   const deletedData = deletedEv.data[deletedType];
-  
+
   // 找出删除节点的下一个连接节点
   if (deletedData.nxt) {
     nextEventIdx = deletedData.nxt.idx;
@@ -303,16 +329,17 @@ export const removeEvent = (evflData: any, deletedIdxStr: string) => {
   } else if (deletedData.forks && deletedData.forks.length > 0) {
     nextEventIdx = deletedData.forks[0].idx;
   }
-  
+
   // 调整索引
-  const newNextEventIdx = (nextEventIdx !== 65535 && nextEventIdx > deletedIdx) ? nextEventIdx - 1 : nextEventIdx;
-  
+  const newNextEventIdx =
+    nextEventIdx !== 65535 && nextEventIdx > deletedIdx ? nextEventIdx - 1 : nextEventIdx;
+
   const updateIdx = (ptr: any) => {
     if (!ptr) return;
     if (ptr.idx === deletedIdx) ptr.idx = newNextEventIdx;
     else if (ptr.idx !== 65535 && ptr.idx > deletedIdx) ptr.idx--;
   };
-  
+
   // 更新所有入口点指向
   if (newEvflData.flowchart.entry_points) {
     newEvflData.flowchart.entry_points.forEach((ep: any) => {
@@ -320,10 +347,10 @@ export const removeEvent = (evflData: any, deletedIdxStr: string) => {
       updateIdx(ep.sub_flow_event);
     });
   }
-  
+
   // 从数组中删除
   newEvflData.flowchart.events.splice(deletedIdx, 1);
-  
+
   // 更新剩余节点的指向
   newEvflData.flowchart.events.forEach((ev: any) => {
     const type = Object.keys(ev.data)[0];
@@ -333,6 +360,6 @@ export const removeEvent = (evflData: any, deletedIdxStr: string) => {
     if (data.forks) data.forks.forEach(updateIdx);
     if (data.cases) Object.values(data.cases).forEach(updateIdx);
   });
-  
+
   return newEvflData;
 };

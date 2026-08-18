@@ -1,0 +1,391 @@
+/* Actor Manager & Event Manager */
+.actor-manager {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background: #1e1e1e;
+  color: #f8fafc;
+  overflow: hidden;
+}
+
+.am-top {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid #2a2a2a;
+  min-height: 200px;
+}
+
+.am-bottom {
+  flex: 1;
+  display: flex;
+  min-height: 200px;
+  background: #141414;
+}
+
+.am-section {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  border-right: 1px solid #2a2a2a;
+}
+
+.am-section:last-child {
+  border-right: none;
+}
+
+.am-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: #252526;
+  border-bottom: 1px solid #2a2a2a;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #f8fafc;
+}
+
+.am-content {
+  flex: 1;
+  overflow: auto;
+}
+
+.am-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.am-table th,
+.am-table td {
+  padding: 8px 12px;
+  border: 1px solid #2a2a2a;
+  text-align: left;
+  font-size: 0.85rem;
+  color: #e2e8f0;
+}
+
+.am-table th {
+  background: #1f1f1f;
+  font-weight: 600;
+  color: #94a3b8;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.am-table tr:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.am-table tr.selected {
+  background: rgba(59, 130, 246, 0.35);
+  color: white;
+}
+
+.am-btn {
+  background: #252526;
+  border: 1px solid #3c3c3c;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: #cccccc;
+}
+
+.am-btn:hover {
+  background: #333333;
+  color: white;
+}
+
+.am-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.am-list-item {
+  padding: 6px 12px;
+  border-bottom: 1px solid #2a2a2a;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  color: #cccccc;
+}
+
+.am-list-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+}
+
+.am-list-item.selected {
+  background: rgba(59, 130, 246, 0.35);
+  color: #ffffff;
+}
+
+/* Actor Manager 内联添加条样式 */
+.am-inline-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #18181b;
+  border-bottom: 1px solid #3b82f6;
+  animation: slideDown 0.15s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.am-inline-inputs {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 280px;
+}
+
+.am-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.am-input-label {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
+.am-input {
+  flex: 1;
+  background: #27272a;
+  border: 1px solid #3f3f46;
+  border-radius: 4px;
+  padding: 5px 8px;
+  color: #f4f4f5;
+  font-size: 0.85rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.am-input:focus {
+  border-color: #3b82f6;
+  background: #1e1e24;
+}
+
+.am-inline-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.am-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #2563eb;
+  border: 1px solid #3b82f6;
+  color: #ffffff;
+  padding: 5px 12px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.am-btn-primary:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.am-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.am-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #27272a;
+  border: 1px solid #3f3f46;
+  color: #a1a1aa;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.am-btn-secondary:hover {
+  background: #3f3f46;
+  color: #f4f4f5;
+}
+
+.am-inline-sub-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: #18181b;
+  border-bottom: 1px solid #27272a;
+  animation: slideDown 0.15s ease-out;
+}
+
+.am-sub-input {
+  flex: 1;
+  background: #27272a;
+  border: 1px solid #3f3f46;
+  border-radius: 4px;
+  padding: 4px 8px;
+  color: #f4f4f5;
+  font-size: 0.82rem;
+  font-family: inherit;
+  outline: none;
+}
+
+.am-sub-input:focus {
+  border-color: #3b82f6;
+}
+
+.am-btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  background: #27272a;
+  border: 1px solid #3f3f46;
+  border-radius: 4px;
+  color: #a1a1aa;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.am-btn-icon:hover:not(:disabled) {
+  background: #3f3f46;
+  color: #f4f4f5;
+}
+
+.am-btn-icon.am-btn-success {
+  background: #16a34a;
+  border-color: #22c55e;
+  color: #ffffff;
+}
+
+.am-btn-icon.am-btn-success:hover:not(:disabled) {
+  background: #15803d;
+}
+
+.am-btn-icon:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.am-inline-param-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: #18181b;
+  border-bottom: 1px solid #27272a;
+  animation: slideDown 0.15s ease-out;
+}
+
+.am-param-select {
+  background: #27272a;
+  border: 1px solid #3f3f46;
+  border-radius: 4px;
+  padding: 4px 6px;
+  color: #f4f4f5;
+  font-size: 0.8rem;
+  outline: none;
+  cursor: pointer;
+}
+
+.am-param-select:focus {
+  border-color: #3b82f6;
+}
+
+.am-param-input {
+  flex: 1;
+  background: #27272a;
+  border: 1px solid #3f3f46;
+  border-radius: 4px;
+  padding: 4px 8px;
+  color: #f4f4f5;
+  font-size: 0.82rem;
+  outline: none;
+}
+
+.am-param-input:focus {
+  border-color: #3b82f6;
+}
+
+@keyframes blink-red {
+  0%,
+  100% {
+    border-color: transparent;
+  }
+
+  50% {
+    background-color: rgba(239, 68, 68, 0.7);
+    border-color: #ef4444;
+  }
+}
+
+.blinking-error {
+  animation: blink-red 0.5s ease-in-out 3;
+}
+
+.knife-mode .react-flow__pane {
+  cursor: crosshair !important;
+}
+
+.knife-mode .react-flow__edge {
+  cursor: crosshair !important;
+}
+
+.knife-mode-indicator {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #ef4444;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: bold;
+  z-index: 1000;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  animation: pulse 2s infinite;
+  pointer-events: none;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.8;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0.8;
+  }
+}

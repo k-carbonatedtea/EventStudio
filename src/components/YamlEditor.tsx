@@ -19,7 +19,11 @@ const YamlEditor: React.FC<YamlEditorProps> = ({ filePath, initialData, onSaveSu
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const isJsonMode = initialData?.type === 'bfevfl' || initialData?.type === 'json' || filePath.toLowerCase().endsWith('.bfevfl') || filePath.toLowerCase().endsWith('.json');
+  const isJsonMode =
+    initialData?.type === 'bfevfl' ||
+    initialData?.type === 'json' ||
+    filePath.toLowerCase().endsWith('.bfevfl') ||
+    filePath.toLowerCase().endsWith('.json');
 
   useEffect(() => {
     if (initialData) {
@@ -80,10 +84,27 @@ const YamlEditor: React.FC<YamlEditorProps> = ({ filePath, initialData, onSaveSu
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%', backgroundColor: '#1e1e1e' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 16px', borderBottom: '1px solid #333' }}>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        width: '100%',
+        backgroundColor: '#1e1e1e',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '8px 16px',
+          borderBottom: '1px solid #333',
+        }}
+      >
         <h2 style={{ color: '#fff', fontSize: '14px', margin: 0 }}>
-          {filePath.split(/[/\\]/).pop()} {initialData ? `(${isJsonMode ? 'JSON' : initialData.type.toUpperCase()})` : ''}
+          {filePath.split(/[/\\]/).pop()}{' '}
+          {initialData ? `(${isJsonMode ? 'JSON' : initialData.type.toUpperCase()})` : ''}
         </h2>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           {initialData && !isJsonMode && (
@@ -93,13 +114,19 @@ const YamlEditor: React.FC<YamlEditorProps> = ({ filePath, initialData, onSaveSu
               })}
             </span>
           )}
-          <button 
-            onClick={handleSave} 
+          <button
+            onClick={handleSave}
             disabled={isSaving || !initialData}
-            style={{ 
-              display: 'flex', alignItems: 'center', gap: '6px', 
-              padding: '6px 12px', backgroundColor: '#2563eb', 
-              color: 'white', border: 'none', borderRadius: '4px', cursor: (isSaving || !initialData) ? 'not-allowed' : 'pointer' 
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '6px 12px',
+              backgroundColor: '#2563eb',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: isSaving || !initialData ? 'not-allowed' : 'pointer',
             }}
           >
             <Save size={14} />
@@ -107,13 +134,20 @@ const YamlEditor: React.FC<YamlEditorProps> = ({ filePath, initialData, onSaveSu
           </button>
         </div>
       </div>
-      
+
       {error && (
-        <div style={{ padding: '8px 16px', backgroundColor: '#ef4444', color: 'white', fontSize: '12px' }}>
+        <div
+          style={{
+            padding: '8px 16px',
+            backgroundColor: '#ef4444',
+            color: 'white',
+            fontSize: '12px',
+          }}
+        >
           {error}
         </div>
       )}
-      
+
       <div style={{ flex: 1 }}>
         <Editor
           height="100%"
@@ -128,7 +162,7 @@ const YamlEditor: React.FC<YamlEditorProps> = ({ filePath, initialData, onSaveSu
             wordWrap: 'off',
             fontSize: 13,
             fontFamily: 'monospace',
-            unicodeHighlight: { ambiguousCharacters: false, invisibleCharacters: false }
+            unicodeHighlight: { ambiguousCharacters: false, invisibleCharacters: false },
           }}
         />
       </div>

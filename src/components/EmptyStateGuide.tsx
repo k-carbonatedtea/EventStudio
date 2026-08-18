@@ -1,8 +1,19 @@
 import React, { useState } from 'react';
-import { 
-  FolderOpen, FolderTree, FilePlus, Sparkles, UploadCloud, 
-  FileCode2, BookOpen, Clock, Zap, Trash2, Package, MessageSquare, FileText,
-  FolderSearch
+import {
+  FolderOpen,
+  FolderTree,
+  FilePlus,
+  Sparkles,
+  UploadCloud,
+  FileCode2,
+  BookOpen,
+  Clock,
+  Zap,
+  Trash2,
+  Package,
+  MessageSquare,
+  FileText,
+  FolderSearch,
 } from 'lucide-react';
 import { useTranslation } from '../i18n';
 import { RecentProjectItem, ProjectType } from '../types/recentProject';
@@ -55,7 +66,7 @@ export const EmptyStateGuide: React.FC<EmptyStateGuideProps> = ({
 }) => {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'quick' | 'recent'>(() => {
-    return (recentProjects && recentProjects.length > 0) ? 'recent' : 'quick';
+    return recentProjects && recentProjects.length > 0 ? 'recent' : 'quick';
   });
 
   // 如果已打开 Mod 文件夹但尚未选择具体文件
@@ -67,10 +78,11 @@ export const EmptyStateGuide: React.FC<EmptyStateGuideProps> = ({
           <div className="empty-state-icon-wrapper mod-loaded">
             <FolderTree size={40} className="empty-state-icon text-cyan" />
           </div>
-          
+
           <h2 className="empty-state-title">{t('empty.modLoadedTitle')}</h2>
           <p className="empty-state-subtitle">
-            {t('empty.modLoadedSubtitle')}<span className="empty-state-highlight">{folderName}</span>
+            {t('empty.modLoadedSubtitle')}
+            <span className="empty-state-highlight">{folderName}</span>
           </p>
 
           <div className="empty-state-hint-box">
@@ -111,7 +123,7 @@ export const EmptyStateGuide: React.FC<EmptyStateGuideProps> = ({
 
         {/* 快速开始 / 最近项目 分段切换标签栏 */}
         <div className="empty-state-segment-tabs">
-          <button 
+          <button
             className={`empty-segment-btn ${activeTab === 'quick' ? 'active' : ''}`}
             onClick={() => setActiveTab('quick')}
           >
@@ -119,7 +131,7 @@ export const EmptyStateGuide: React.FC<EmptyStateGuideProps> = ({
             <span>{t('empty.quickStartTab')}</span>
           </button>
 
-          <button 
+          <button
             className={`empty-segment-btn ${activeTab === 'recent' ? 'active' : ''}`}
             onClick={() => setActiveTab('recent')}
           >
@@ -182,7 +194,7 @@ export const EmptyStateGuide: React.FC<EmptyStateGuideProps> = ({
               <>
                 <div className="recent-projects-list">
                   {recentProjects.map((item) => (
-                    <div 
+                    <div
                       key={item.id || item.path}
                       className="recent-project-item"
                       onClick={() => onOpenRecent && onOpenRecent(item)}
@@ -202,7 +214,7 @@ export const EmptyStateGuide: React.FC<EmptyStateGuideProps> = ({
 
                       <div className="recent-item-actions" onClick={(e) => e.stopPropagation()}>
                         {onRemoveRecent && (
-                          <button 
+                          <button
                             className="recent-icon-btn delete"
                             title={t('empty.removeRecentTooltip')}
                             onClick={() => onRemoveRecent(item.path)}
@@ -220,7 +232,7 @@ export const EmptyStateGuide: React.FC<EmptyStateGuideProps> = ({
                     {recentProjects.length} {t('empty.recentProjectsTab')}
                   </span>
                   {onClearRecent && (
-                    <button 
+                    <button
                       className="recent-clear-btn"
                       onClick={() => {
                         if (confirm(t('empty.clearRecentConfirm'))) {

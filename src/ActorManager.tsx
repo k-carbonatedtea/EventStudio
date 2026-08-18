@@ -15,11 +15,15 @@ export default function ActorManager({ evflData, onUpdateEvflData }: ActorManage
 
   // 新增角色行内输入状态
   const [isAddingActor, setIsAddingActor] = useState(false);
-  const [newActorName, setNewActorName] = useState("");
-  const [newActorSubName, setNewActorSubName] = useState("");
+  const [newActorName, setNewActorName] = useState('');
+  const [newActorSubName, setNewActorSubName] = useState('');
 
   if (!evflData || !evflData.flowchart) {
-    return <div className="actor-manager" style={{ padding: 20 }}>{t('actors.noActors')}</div>;
+    return (
+      <div className="actor-manager" style={{ padding: 20 }}>
+        {t('actors.noActors')}
+      </div>
+    );
   }
 
   const actors = evflData.flowchart.actors || [];
@@ -35,7 +39,7 @@ export default function ActorManager({ evflData, onUpdateEvflData }: ActorManage
 
     newEvflData.flowchart.actors.push({
       identifier: { name: trimmed, sub_name: newActorSubName.trim() },
-      argument_name: "",
+      argument_name: '',
       argument_entry_point: { v: null, idx: 65535 },
       actions: [],
       queries: [],
@@ -43,11 +47,13 @@ export default function ActorManager({ evflData, onUpdateEvflData }: ActorManage
       concurrent_clips: 65535,
     });
 
-    const subDetail = newActorSubName.trim() ? `Sub: ${newActorSubName.trim()}` : "New actor definition";
+    const subDetail = newActorSubName.trim()
+      ? `Sub: ${newActorSubName.trim()}`
+      : 'New actor definition';
     onUpdateEvflData(newEvflData, `Add Actor: ${trimmed}`, subDetail);
     setSelectedActorIdx(newEvflData.flowchart.actors.length - 1);
-    setNewActorName("");
-    setNewActorSubName("");
+    setNewActorName('');
+    setNewActorSubName('');
     setIsAddingActor(false);
   };
 
@@ -55,14 +61,15 @@ export default function ActorManager({ evflData, onUpdateEvflData }: ActorManage
   const handleDeleteActor = (idx: number, e: React.MouseEvent) => {
     e.stopPropagation();
     const actorName = actors[idx]?.identifier?.name || `Actor[${idx}]`;
-    const confirmMsg = locale === 'zh'
-      ? `确定要删除角色 "${actorName}" 吗？此操作可能影响引用该角色的动作事件。`
-      : `Are you sure you want to delete actor "${actorName}"? This may affect events referencing it.`;
+    const confirmMsg =
+      locale === 'zh'
+        ? `确定要删除角色 "${actorName}" 吗？此操作可能影响引用该角色的动作事件。`
+        : `Are you sure you want to delete actor "${actorName}"? This may affect events referencing it.`;
     if (!confirm(confirmMsg)) return;
 
     const newEvflData = structuredClone(evflData);
     newEvflData.flowchart.actors.splice(idx, 1);
-    onUpdateEvflData(newEvflData, `Delete Actor: ${actorName}`, "Remove actor definition");
+    onUpdateEvflData(newEvflData, `Delete Actor: ${actorName}`, 'Remove actor definition');
 
     if (selectedActorIdx === idx) {
       setSelectedActorIdx(null);
@@ -75,13 +82,21 @@ export default function ActorManager({ evflData, onUpdateEvflData }: ActorManage
     <div className="actor-manager">
       <div className="am-top">
         <div className="am-header">
-          <span>{locale === 'zh' ? `共 ${actors.length} 个角色` : `Total ${actors.length} Actors`}</span>
-          <button 
-            className="am-btn" 
-            onClick={() => setIsAddingActor(!isAddingActor)}
-          >
-            <Plus size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }}/>
-            {isAddingActor ? (locale === 'zh' ? "取消添加" : "Cancel") : (locale === 'zh' ? "添加角色..." : "Add Actor...")}
+          <span>
+            {locale === 'zh' ? `共 ${actors.length} 个角色` : `Total ${actors.length} Actors`}
+          </span>
+          <button className="am-btn" onClick={() => setIsAddingActor(!isAddingActor)}>
+            <Plus
+              size={14}
+              style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }}
+            />
+            {isAddingActor
+              ? locale === 'zh'
+                ? '取消添加'
+                : 'Cancel'
+              : locale === 'zh'
+                ? '添加角色...'
+                : 'Add Actor...'}
           </button>
         </div>
 
@@ -99,8 +114,8 @@ export default function ActorManager({ evflData, onUpdateEvflData }: ActorManage
                   value={newActorName}
                   onChange={(e) => setNewActorName(e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter") handleConfirmAddActor();
-                    if (e.key === "Escape") setIsAddingActor(false);
+                    if (e.key === 'Enter') handleConfirmAddActor();
+                    if (e.key === 'Escape') setIsAddingActor(false);
                   }}
                 />
               </div>
@@ -113,16 +128,16 @@ export default function ActorManager({ evflData, onUpdateEvflData }: ActorManage
                   value={newActorSubName}
                   onChange={(e) => setNewActorSubName(e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter") handleConfirmAddActor();
-                    if (e.key === "Escape") setIsAddingActor(false);
+                    if (e.key === 'Enter') handleConfirmAddActor();
+                    if (e.key === 'Escape') setIsAddingActor(false);
                   }}
                 />
               </div>
             </div>
             <div className="am-inline-actions">
-              <button 
-                className="am-btn-primary" 
-                onClick={handleConfirmAddActor} 
+              <button
+                className="am-btn-primary"
+                onClick={handleConfirmAddActor}
                 disabled={!newActorName.trim()}
               >
                 <Check size={14} /> {locale === 'zh' ? '确认添加 (Enter)' : 'Confirm (Enter)'}
@@ -144,13 +159,15 @@ export default function ActorManager({ evflData, onUpdateEvflData }: ActorManage
                 <th>{locale === 'zh' ? '部署入口点' : 'Entry Point'}</th>
                 <th>{locale === 'zh' ? '动作数' : 'Actions'}</th>
                 <th>{locale === 'zh' ? '查询数' : 'Queries'}</th>
-                <th style={{ width: 48, textAlign: 'center' }}>{locale === 'zh' ? '操作' : 'Action'}</th>
+                <th style={{ width: 48, textAlign: 'center' }}>
+                  {locale === 'zh' ? '操作' : 'Action'}
+                </th>
               </tr>
             </thead>
             <tbody>
               {actors.map((actor: any, idx: number) => (
-                <tr 
-                  key={idx} 
+                <tr
+                  key={idx}
                   className={selectedActorIdx === idx ? 'selected' : ''}
                   onClick={() => setSelectedActorIdx(idx)}
                   style={{ cursor: 'pointer' }}
@@ -158,13 +175,17 @@ export default function ActorManager({ evflData, onUpdateEvflData }: ActorManage
                   <td>{actor.identifier?.name}</td>
                   <td>{actor.identifier?.sub_name || '-'}</td>
                   <td>{actor.argument_name || '-'}</td>
-                  <td>{actor.argument_entry_point?.idx !== 65535 ? actor.argument_entry_point?.idx : '-'}</td>
+                  <td>
+                    {actor.argument_entry_point?.idx !== 65535
+                      ? actor.argument_entry_point?.idx
+                      : '-'}
+                  </td>
                   <td>{actor.actions ? actor.actions.length : 0}</td>
                   <td>{actor.queries ? actor.queries.length : 0}</td>
                   <td style={{ textAlign: 'center' }}>
-                    <button 
-                      className="close-btn" 
-                      style={{ padding: '2px 4px', color: '#ef4444' }} 
+                    <button
+                      className="close-btn"
+                      style={{ padding: '2px 4px', color: '#ef4444' }}
                       title={t('common.delete')}
                       onClick={(e) => handleDeleteActor(idx, e)}
                     >
@@ -184,7 +205,7 @@ export default function ActorManager({ evflData, onUpdateEvflData }: ActorManage
           </table>
         </div>
       </div>
-      
+
       {/* 角色动作、查询与参数管理面板 */}
       <ActorDetailsPanel
         selectedActor={selectedActor}

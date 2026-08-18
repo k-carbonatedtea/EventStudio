@@ -18,10 +18,13 @@ export interface TranslationSchema {
     key: string;
     browse: string;
     ok: string;
+    add: string;
     success: string;
     error: string;
     warning: string;
     info: string;
+    fps: string;
+    fpsTooltip: string;
   };
   menu: {
     file: string;
@@ -236,6 +239,8 @@ export interface TranslationSchema {
       title: string;
       label: string;
       placeholder: string;
+      originalFileName: string;
+      includeExtension: string;
     };
   };
   settings: {

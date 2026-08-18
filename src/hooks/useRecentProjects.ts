@@ -12,7 +12,13 @@ export function getProjectType(path: string, isMod?: boolean): ProjectType {
   if (lower.endsWith('.pack') || lower.endsWith('.sarc') || lower.endsWith('.ssarc')) return 'pack';
   if (lower.endsWith('.bfevfl')) return 'bfevfl';
   if (lower.endsWith('.msbt')) return 'msbt';
-  if (lower.endsWith('.yaml') || lower.endsWith('.yml') || lower.endsWith('.aamp') || lower.endsWith('.byml')) return 'yaml';
+  if (
+    lower.endsWith('.yaml') ||
+    lower.endsWith('.yml') ||
+    lower.endsWith('.aamp') ||
+    lower.endsWith('.byml')
+  )
+    return 'yaml';
   return 'other';
 }
 
@@ -25,11 +31,11 @@ export function useRecentProjects() {
         const parsed: RecentProjectItem[] = JSON.parse(stored);
         // 过滤掉内部 SARC 虚拟文件路径与非法子文件路径
         return parsed.filter(
-          (item) => item.path && !item.path.startsWith('SARC:') && !item.path.includes('//')
+          (item) => item.path && !item.path.startsWith('SARC:') && !item.path.includes('//'),
         );
       }
     } catch (e) {
-      console.warn("Failed to load recent projects from localStorage", e);
+      console.warn('Failed to load recent projects from localStorage', e);
     }
     return [];
   });
@@ -38,13 +44,13 @@ export function useRecentProjects() {
   const saveToStorage = (items: RecentProjectItem[]) => {
     // 确保仅保存非 SARC 独立顶层工程或物理文件
     const cleanItems = items.filter(
-      (item) => item.path && !item.path.startsWith('SARC:') && !item.path.includes('//')
+      (item) => item.path && !item.path.startsWith('SARC:') && !item.path.includes('//'),
     );
     setRecentProjects(cleanItems);
     try {
       localStorage.setItem(RECENT_PROJECTS_KEY, JSON.stringify(cleanItems));
     } catch (e) {
-      console.warn("Failed to save recent projects to localStorage", e);
+      console.warn('Failed to save recent projects to localStorage', e);
     }
   };
 
@@ -62,7 +68,10 @@ export function useRecentProjects() {
 
     setRecentProjects((prev) => {
       const filtered = prev.filter(
-        (item) => item.path.toLowerCase() !== cleanPath.toLowerCase() && !item.path.startsWith('SARC:') && !item.path.includes('//')
+        (item) =>
+          item.path.toLowerCase() !== cleanPath.toLowerCase() &&
+          !item.path.startsWith('SARC:') &&
+          !item.path.includes('//'),
       );
       const newItem: RecentProjectItem = {
         id: `${cleanPath}_${Date.now()}`,
@@ -75,7 +84,7 @@ export function useRecentProjects() {
       try {
         localStorage.setItem(RECENT_PROJECTS_KEY, JSON.stringify(updated));
       } catch (e) {
-        console.warn("Failed to save recent projects", e);
+        console.warn('Failed to save recent projects', e);
       }
       return updated;
     });
@@ -88,7 +97,7 @@ export function useRecentProjects() {
       try {
         localStorage.setItem(RECENT_PROJECTS_KEY, JSON.stringify(updated));
       } catch (e) {
-        console.warn("Failed to update recent projects", e);
+        console.warn('Failed to update recent projects', e);
       }
       return updated;
     });

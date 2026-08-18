@@ -1,22 +1,22 @@
-import { lazy, Suspense } from "react";
-import { Trash2 } from "lucide-react";
-import ContextMenu from "../ContextMenu";
-import PaneContextMenu from "../PaneContextMenu";
-import RenameFlowchartModal from "./RenameFlowchartModal";
-import RenameEntryPointModal from "./RenameEntryPointModal";
-import NewFileModal from "./NewFileModal";
-import RenameFileModal from "./RenameFileModal";
-import FileContextMenu from "./FileContextMenu";
-import { FileNode } from "../types/fileTree";
-import { GamePathSettings } from "../types/settings";
+import { lazy, Suspense } from 'react';
+import { Trash2 } from 'lucide-react';
+import ContextMenu from '../ContextMenu';
+import PaneContextMenu from '../PaneContextMenu';
+import RenameFlowchartModal from './RenameFlowchartModal';
+import RenameEntryPointModal from './RenameEntryPointModal';
+import NewFileModal from './NewFileModal';
+import RenameFileModal from './RenameFileModal';
+import FileContextMenu from './FileContextMenu';
+import { FileNode } from '../types/fileTree';
+import { GamePathSettings } from '../types/settings';
 
 // 懒加载大型模态框
-const NodeEditorModal = lazy(() => import("../NodeEditorModal"));
-const SwitchEditorModal = lazy(() => import("../SwitchEditorModal"));
-const ForkEditorModal = lazy(() => import("../ForkEditorModal"));
-const GameSettingsModal = lazy(() => import("./GameSettingsModal"));
-const AboutModal = lazy(() => import("./AboutModal"));
-const HelpModal = lazy(() => import("./HelpModal"));
+const NodeEditorModal = lazy(() => import('../NodeEditorModal'));
+const SwitchEditorModal = lazy(() => import('../SwitchEditorModal'));
+const ForkEditorModal = lazy(() => import('../ForkEditorModal'));
+const GameSettingsModal = lazy(() => import('./GameSettingsModal'));
+const AboutModal = lazy(() => import('./AboutModal'));
+const HelpModal = lazy(() => import('./HelpModal'));
 
 interface AppModalsProps {
   // 全局设置与辅助弹窗
@@ -25,7 +25,7 @@ interface AppModalsProps {
   setIsSettingsModalOpen: (open: boolean) => void;
   saveGameSettings: (settings: GamePathSettings) => Promise<void> | void;
   pickFolder: (title?: string) => Promise<string | null>;
-  showToast: (text: string, type?: "success" | "error" | "info") => void;
+  showToast: (text: string, type?: 'success' | 'error' | 'info') => void;
 
   isAboutModalOpen: boolean;
   setIsAboutModalOpen: (open: boolean) => void;
@@ -53,7 +53,12 @@ interface AppModalsProps {
   onConfirmRenameFile: (oldPath: string, newName: string) => void;
 
   fileContextMenu: { visible: boolean; x: number; y: number; node: FileNode | null };
-  setFileContextMenu: (state: { visible: boolean; x: number; y: number; node: FileNode | null }) => void;
+  setFileContextMenu: (state: {
+    visible: boolean;
+    x: number;
+    y: number;
+    node: FileNode | null;
+  }) => void;
   onOpenFileAsJson?: (path: string) => void;
   onDeleteFile: (node: FileNode) => void;
 
@@ -69,7 +74,12 @@ interface AppModalsProps {
   onUpdateNode: (data: any) => void;
 
   paneContextMenu: { visible: boolean; x: number; y: number; sourceNodeId: string | null };
-  setPaneContextMenu: (state: { visible: boolean; x: number; y: number; sourceNodeId: string | null }) => void;
+  setPaneContextMenu: (state: {
+    visible: boolean;
+    x: number;
+    y: number;
+    sourceNodeId: string | null;
+  }) => void;
   focusNodeId: string | null;
   onHandleCreateNewNode: (actionType: string, sourceNodeId: string | null) => void;
 
@@ -148,17 +158,22 @@ export default function AppModals({
       {edgeContextMenu.visible && edgeContextMenu.edge && (
         <div
           className="context-menu"
-          style={{ position: "fixed", top: edgeContextMenu.y, left: edgeContextMenu.x, zIndex: 1000 }}
+          style={{
+            position: 'fixed',
+            top: edgeContextMenu.y,
+            left: edgeContextMenu.x,
+            zIndex: 1000,
+          }}
         >
           <div
             className="context-menu-item"
-            style={{ color: "#ef4444" }}
+            style={{ color: '#ef4444' }}
             onClick={() => {
               onEdgesDelete([edgeContextMenu.edge]);
               setEdgeContextMenu({ ...edgeContextMenu, visible: false });
             }}
           >
-            <Trash2 size={14} style={{ marginRight: "6px" }} /> 切断连线
+            <Trash2 size={14} style={{ marginRight: '6px' }} /> 切断连线
           </div>
         </div>
       )}
@@ -226,9 +241,13 @@ export default function AppModals({
           />
         )}
 
-        {isAboutModalOpen && <AboutModal isOpen={isAboutModalOpen} onClose={() => setIsAboutModalOpen(false)} />}
+        {isAboutModalOpen && (
+          <AboutModal isOpen={isAboutModalOpen} onClose={() => setIsAboutModalOpen(false)} />
+        )}
 
-        {isHelpModalOpen && <HelpModal isOpen={isHelpModalOpen} onClose={() => setIsHelpModalOpen(false)} />}
+        {isHelpModalOpen && (
+          <HelpModal isOpen={isHelpModalOpen} onClose={() => setIsHelpModalOpen(false)} />
+        )}
       </Suspense>
 
       {/* 流程图重命名弹窗 */}
@@ -251,7 +270,7 @@ export default function AppModals({
       <NewFileModal
         isOpen={newFileModal.isOpen}
         targetDir={newFileModal.targetDir}
-        onClose={() => setNewFileModal({ isOpen: false, targetDir: "" })}
+        onClose={() => setNewFileModal({ isOpen: false, targetDir: '' })}
         onConfirm={onConfirmCreateFile}
       />
 

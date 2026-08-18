@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 
 // 侧边栏宽度拖拽调整自定义 Hook
 export function useSidebarResize(initialWidth = 250) {
@@ -19,20 +19,20 @@ export function useSidebarResize(initialWidth = 250) {
     };
 
     if (isResizingSidebar) {
-      document.addEventListener("mousemove", handleMouseMove);
-      document.addEventListener("mouseup", handleMouseUp);
-      document.body.style.userSelect = "none";
-      document.body.style.cursor = "col-resize";
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      document.body.style.userSelect = 'none';
+      document.body.style.cursor = 'col-resize';
     } else {
-      document.body.style.userSelect = "";
-      document.body.style.cursor = "";
+      document.body.style.userSelect = '';
+      document.body.style.cursor = '';
     }
 
     return () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
-      document.body.style.userSelect = "";
-      document.body.style.cursor = "";
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.userSelect = '';
+      document.body.style.cursor = '';
     };
   }, [isResizingSidebar]);
 

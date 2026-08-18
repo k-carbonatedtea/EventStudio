@@ -67,9 +67,16 @@ export default function MenuBar({
     // 1. 检查打开的 Mod 目录或封包
     if (modFolderPath) {
       const lowerMod = modFolderPath.toLowerCase();
-      const isPack = lowerMod.endsWith('.sbeventpack') || lowerMod.endsWith('.pack') || lowerMod.endsWith('.sarc');
+      const isPack =
+        lowerMod.endsWith('.sbeventpack') ||
+        lowerMod.endsWith('.pack') ||
+        lowerMod.endsWith('.sarc');
       if (isPack) {
-        const isWiiu = lowerMod.includes('wiiu') || lowerMod.includes('cemu') || lowerMod.includes('content') || currentPlatform === 'wiiu';
+        const isWiiu =
+          lowerMod.includes('wiiu') ||
+          lowerMod.includes('cemu') ||
+          lowerMod.includes('content') ||
+          currentPlatform === 'wiiu';
         return {
           name: isWiiu ? t('status.wiiuPackMode') : t('status.switchPackMode'),
           type: isWiiu ? 'wiiu-pack' : 'switch-pack',
@@ -78,7 +85,12 @@ export default function MenuBar({
       if (lowerMod.includes('wiiu') || lowerMod.includes('cemu') || lowerMod.includes('mlc01')) {
         return { name: t('status.wiiuModMode'), type: 'wiiu' };
       }
-      if (lowerMod.includes('switch') || lowerMod.includes('atmosphere') || lowerMod.includes('romfs') || lowerMod.includes('01007ef')) {
+      if (
+        lowerMod.includes('switch') ||
+        lowerMod.includes('atmosphere') ||
+        lowerMod.includes('romfs') ||
+        lowerMod.includes('01007ef')
+      ) {
         return { name: t('status.switchModMode'), type: 'switch' };
       }
       return {
@@ -90,8 +102,16 @@ export default function MenuBar({
     // 2. 检查单文件
     if (filePath) {
       const lowerFile = filePath.toLowerCase();
-      if (lowerFile.endsWith('.sbeventpack') || lowerFile.endsWith('.pack') || lowerFile.endsWith('.sarc')) {
-        const isWiiu = lowerFile.includes('wiiu') || lowerFile.includes('cemu') || lowerFile.includes('content') || currentPlatform === 'wiiu';
+      if (
+        lowerFile.endsWith('.sbeventpack') ||
+        lowerFile.endsWith('.pack') ||
+        lowerFile.endsWith('.sarc')
+      ) {
+        const isWiiu =
+          lowerFile.includes('wiiu') ||
+          lowerFile.includes('cemu') ||
+          lowerFile.includes('content') ||
+          currentPlatform === 'wiiu';
         return {
           name: isWiiu ? t('status.wiiuPackMode') : t('status.switchPackMode'),
           type: isWiiu ? 'wiiu-pack' : 'switch-pack',
@@ -103,7 +123,12 @@ export default function MenuBar({
       if (lowerFile.endsWith('.msbt')) {
         return { name: t('status.msbtMode'), type: 'other' };
       }
-      if (lowerFile.endsWith('.yml') || lowerFile.endsWith('.yaml') || lowerFile.endsWith('.aamp') || lowerFile.endsWith('.byml')) {
+      if (
+        lowerFile.endsWith('.yml') ||
+        lowerFile.endsWith('.yaml') ||
+        lowerFile.endsWith('.aamp') ||
+        lowerFile.endsWith('.byml')
+      ) {
         return { name: t('status.yamlMode'), type: 'other' };
       }
     }
@@ -130,12 +155,12 @@ export default function MenuBar({
       setActiveMenu(null);
     };
 
-    document.addEventListener("mousedown", handleClickOutside, true);
-    window.addEventListener("blur", handleWindowBlur);
+    document.addEventListener('mousedown', handleClickOutside, true);
+    window.addEventListener('blur', handleWindowBlur);
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside, true);
-      window.removeEventListener("blur", handleWindowBlur);
+      document.removeEventListener('mousedown', handleClickOutside, true);
+      window.removeEventListener('blur', handleWindowBlur);
     };
   }, []);
 
@@ -159,7 +184,10 @@ export default function MenuBar({
       <div className="menu-bar-left">
         {/* 文件菜单 */}
         <div className="menu-bar-item-container" onMouseEnter={() => handleMouseEnter('file')}>
-          <div className={`menu-bar-item ${activeMenu === 'file' ? 'active' : ''}`} onClick={() => handleMenuClick('file')}>
+          <div
+            className={`menu-bar-item ${activeMenu === 'file' ? 'active' : ''}`}
+            onClick={() => handleMenuClick('file')}
+          >
             {t('menu.file')}
           </div>
           {activeMenu === 'file' && (
@@ -186,7 +214,10 @@ export default function MenuBar({
                 <span className="menu-shortcut">Ctrl+Shift+S</span>
               </div>
               {evflData && onExportActorDefs && (
-                <div className="menu-dropdown-item" onClick={() => handleItemClick(onExportActorDefs)}>
+                <div
+                  className="menu-dropdown-item"
+                  onClick={() => handleItemClick(onExportActorDefs)}
+                >
                   <span>{t('autofill.exportDefs')}</span>
                 </div>
               )}
@@ -200,7 +231,10 @@ export default function MenuBar({
               </div>
               <div className="menu-separator"></div>
 
-              <div className="menu-dropdown-item" onClick={() => handleItemClick(() => getCurrentWindow().close())}>
+              <div
+                className="menu-dropdown-item"
+                onClick={() => handleItemClick(() => getCurrentWindow().close())}
+              >
                 <span>{t('common.close')}</span>
               </div>
             </div>
@@ -209,7 +243,10 @@ export default function MenuBar({
 
         {/* 流程图菜单 */}
         <div className="menu-bar-item-container" onMouseEnter={() => handleMouseEnter('flowchart')}>
-          <div className={`menu-bar-item ${activeMenu === 'flowchart' ? 'active' : ''}`} onClick={() => handleMenuClick('flowchart')}>
+          <div
+            className={`menu-bar-item ${activeMenu === 'flowchart' ? 'active' : ''}`}
+            onClick={() => handleMenuClick('flowchart')}
+          >
             {t('menu.flowchart')}
           </div>
           {activeMenu === 'flowchart' && (
@@ -226,7 +263,9 @@ export default function MenuBar({
                 onClick={() => handleItemClick(onToggleFlowAnimation)}
               >
                 {showFlowAnimation && <span className="menu-check">✓</span>}
-                <span>{showFlowAnimation ? t('menu.hideFlowAnimation') : t('menu.showFlowAnimation')}</span>
+                <span>
+                  {showFlowAnimation ? t('menu.hideFlowAnimation') : t('menu.showFlowAnimation')}
+                </span>
               </div>
               <div className="menu-separator"></div>
               <div className="menu-dropdown-item" onClick={() => handleItemClick(onReloadGraph)}>
@@ -239,7 +278,10 @@ export default function MenuBar({
 
         {/* 帮助菜单 */}
         <div className="menu-bar-item-container" onMouseEnter={() => handleMouseEnter('help')}>
-          <div className={`menu-bar-item ${activeMenu === 'help' ? 'active' : ''}`} onClick={() => handleMenuClick('help')}>
+          <div
+            className={`menu-bar-item ${activeMenu === 'help' ? 'active' : ''}`}
+            onClick={() => handleMenuClick('help')}
+          >
             {t('menu.help')}
           </div>
           {activeMenu === 'help' && (
@@ -258,7 +300,10 @@ export default function MenuBar({
 
         {/* 设置菜单 */}
         <div className="menu-bar-item-container" onMouseEnter={() => handleMouseEnter('settings')}>
-          <div className={`menu-bar-item ${activeMenu === 'settings' ? 'active' : ''}`} onClick={() => handleMenuClick('settings')}>
+          <div
+            className={`menu-bar-item ${activeMenu === 'settings' ? 'active' : ''}`}
+            onClick={() => handleMenuClick('settings')}
+          >
             {t('menu.settings')}
           </div>
           {activeMenu === 'settings' && (
@@ -266,7 +311,10 @@ export default function MenuBar({
               <div className="menu-dropdown-item" onClick={() => handleItemClick(onOpenSettings)}>
                 <span>{t('menu.preferences')}</span>
               </div>
-              <div className="menu-dropdown-item" onClick={() => handleItemClick(onOpenSettingsDir)}>
+              <div
+                className="menu-dropdown-item"
+                onClick={() => handleItemClick(onOpenSettingsDir)}
+              >
                 <span>{t('menu.openSettingsDir')}</span>
               </div>
             </div>

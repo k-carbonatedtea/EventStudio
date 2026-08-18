@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from "react";
-import { invoke } from "@tauri-apps/api/core";
-import { GamePathSettings } from "../types/settings";
+import { useState, useEffect, useCallback } from 'react';
+import { invoke } from '@tauri-apps/api/core';
+import { GamePathSettings } from '../types/settings';
 
 // 语言包与剧情台词文本管理 Hook
 export function useMessageDict(settings: GamePathSettings, modFolderPath: string | null) {
@@ -10,13 +10,15 @@ export function useMessageDict(settings: GamePathSettings, modFolderPath: string
 
   const loadDict = useCallback(async () => {
     const platform = settings.currentPlatform;
-    const lang = settings.language || "USen";
+    const lang = settings.language || 'USen';
     const switchSettings = settings.switch;
     const wiiuSettings = settings.wiiu;
 
-    const gameDir = platform === 'switch' ? (switchSettings?.gameDir || '') : (wiiuSettings?.gameDir || '');
-    const updateDir = platform === 'wiiu' ? (wiiuSettings?.updateDir || '') : '';
-    const dlcDir = platform === 'switch' ? (switchSettings?.dlcDir || '') : (wiiuSettings?.dlcDir || '');
+    const gameDir =
+      platform === 'switch' ? switchSettings?.gameDir || '' : wiiuSettings?.gameDir || '';
+    const updateDir = platform === 'wiiu' ? wiiuSettings?.updateDir || '' : '';
+    const dlcDir =
+      platform === 'switch' ? switchSettings?.dlcDir || '' : wiiuSettings?.dlcDir || '';
 
     if (!modFolderPath && !gameDir && !updateDir && !dlcDir) {
       setMessageDict({});
@@ -27,18 +29,18 @@ export function useMessageDict(settings: GamePathSettings, modFolderPath: string
     setError(null);
 
     try {
-      const dict = await invoke<Record<string, string>>("load_language_dict", {
+      const dict = await invoke<Record<string, string>>('load_language_dict', {
         platform,
         gameDir,
         updateDir,
         dlcDir,
         modDir: modFolderPath || null,
-        language: lang
+        language: lang,
       });
       setMessageDict(dict || {});
       console.log(`[MessageDict] 成功加载 ${lang} 语言包文本 ${Object.keys(dict || {}).length} 条`);
     } catch (err: any) {
-      console.warn("[MessageDict] 加载语言包失败:", err);
+      console.warn('[MessageDict] 加载语言包失败:', err);
       setError(String(err));
       setMessageDict({});
     } finally {
@@ -52,7 +54,7 @@ export function useMessageDict(settings: GamePathSettings, modFolderPath: string
     settings.wiiu.gameDir,
     settings.wiiu.updateDir,
     settings.wiiu.dlcDir,
-    modFolderPath
+    modFolderPath,
   ]);
 
   useEffect(() => {
@@ -63,6 +65,6 @@ export function useMessageDict(settings: GamePathSettings, modFolderPath: string
     messageDict,
     isLoadingDict: isLoading,
     dictError: error,
-    reloadDict: loadDict
+    reloadDict: loadDict,
   };
 }

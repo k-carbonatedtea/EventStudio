@@ -1,0 +1,195 @@
+/* Custom Node Styles */
+.custom-node {
+  background: var(--node-bg);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--node-border);
+  border-radius: 10px;
+  padding: 15px;
+  color: white;
+  width: max-content;
+  min-width: 220px;
+  max-width: 500px;
+  box-shadow: var(--node-shadow);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+  font-family: 'Inter', sans-serif;
+}
+
+.custom-node:hover {
+  box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.5);
+  border-color: var(--accent-color);
+}
+
+.custom-node.selected {
+  border-color: var(--node-border-selected);
+  box-shadow:
+    0 0 0 2px rgba(59, 130, 246, 0.3),
+    var(--node-shadow);
+}
+
+.node-header {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 8px;
+}
+
+.node-type-badge {
+  font-size: 0.7rem;
+  padding: 3px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.node-body {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.node-param {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.node-param-key {
+  opacity: 0.7;
+}
+
+.node-param-val {
+  font-family: monospace;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 1px 4px;
+  border-radius: 3px;
+  color: #a78bfa;
+  /* purple-400 */
+}
+
+/* React Flow custom styling */
+.react-flow__edge-path {
+  stroke: rgba(148, 163, 184, 0.6);
+  stroke-width: 2;
+}
+
+.react-flow__edge.selected .react-flow__edge-path {
+  stroke: var(--accent-color);
+  stroke-width: 3;
+}
+
+.react-flow__handle {
+  width: 10px;
+  height: 10px;
+  background: var(--bg-color);
+  border: 2px solid var(--accent-color);
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
+}
+
+.react-flow__handle:hover {
+  background: var(--accent-color);
+}
+
+.react-flow__controls {
+  background: var(--bg-color-panel);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.react-flow__controls-button {
+  background: transparent;
+  border-bottom: 1px solid var(--border-color);
+  fill: var(--text-primary);
+}
+
+.react-flow__controls-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.react-flow__controls-fps {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 3px 2px 4px;
+  min-height: 28px;
+  cursor: default;
+  user-select: none;
+  background: transparent;
+  line-height: 1;
+  transition: background-color 0.2s;
+}
+
+.react-flow__controls-fps:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.react-flow__controls-fps .fps-value {
+  font-size: 11px;
+  font-weight: 700;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: -0.5px;
+}
+
+.react-flow__controls-fps .fps-unit {
+  font-size: 7.5px;
+  font-weight: 600;
+  color: var(--text-secondary, #94a3b8);
+  margin-top: 1px;
+  letter-spacing: 0.5px;
+  opacity: 0.85;
+}
+
+.react-flow__controls-fps.fps-high .fps-value {
+  color: #4ade80;
+}
+
+.react-flow__controls-fps.fps-medium .fps-value {
+  color: #facc15;
+}
+
+.react-flow__controls-fps.fps-low .fps-value {
+  color: #f87171;
+}
+
+.react-flow__background {
+  background-color: var(--bg-color);
+}
+
+/* 节点内 MessageId 对话剧情文本预览样式 */
+.message-dialogue-preview {
+  margin-top: 4px;
+  padding: 6px 8px;
+  background: rgba(20, 20, 20, 0.85);
+  border-left: 3px solid #38bdf8;
+  border-radius: 4px;
+  color: #7dd3fc;
+  font-size: 11.5px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-all;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
+  user-select: text;
+}
+
+.message-dialogue-preview.compact {
+  margin-top: 6px;
+  max-height: 70px;
+  overflow-y: auto;
+  font-style: italic;
+  color: #93c5fd;
+  border-left-color: #60a5fa;
+}

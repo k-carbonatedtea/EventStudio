@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from "react";
-import { LogIn, X, Check } from "lucide-react";
-import { useTranslation } from "../i18n";
+import { useState, useEffect, useRef } from 'react';
+import { LogIn, X, Check } from 'lucide-react';
+import { useTranslation } from '../i18n';
 
 interface RenameEntryPointModalProps {
   isOpen: boolean;
@@ -17,12 +17,12 @@ export default function RenameEntryPointModal({
   onConfirm,
 }: RenameEntryPointModalProps) {
   const { t, locale } = useTranslation();
-  const [name, setName] = useState("");
+  const [name, setName] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isOpen && entryPoint) {
-      setName(entryPoint.name || "");
+      setName(entryPoint.name || '');
       setTimeout(() => {
         inputRef.current?.focus();
         inputRef.current?.select();
@@ -42,10 +42,14 @@ export default function RenameEntryPointModal({
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" style={{ width: "420px" }} onClick={(e) => e.stopPropagation()}>
+      <div
+        className="modal-content"
+        style={{ width: '420px' }}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="modal-header">
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <LogIn size={18} className="modal-header-icon" style={{ color: "#10b981" }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <LogIn size={18} className="modal-header-icon" style={{ color: '#10b981' }} />
             <h3>{t('modals.renameEp.title')}</h3>
           </div>
           <button className="modal-close-btn" onClick={onClose}>
@@ -54,12 +58,14 @@ export default function RenameEntryPointModal({
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div className="modal-body" style={{ padding: "16px 20px" }}>
+          <div className="modal-body" style={{ padding: '16px 20px' }}>
             <div className="settings-field">
               <label>
                 <span>{t('modals.renameEp.label')}</span>
                 <span className="field-desc">
-                  {locale === 'zh' ? '设置流程图中该入口点的唯一标识名称' : 'Unique identifier name for this entry point'}
+                  {locale === 'zh'
+                    ? '设置流程图中该入口点的唯一标识名称'
+                    : 'Unique identifier name for this entry point'}
                 </span>
               </label>
               <div className="path-input-group">
@@ -69,13 +75,21 @@ export default function RenameEntryPointModal({
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder={t('modals.renameEp.placeholder')}
-                  style={{ width: "100%" }}
+                  style={{ width: '100%' }}
                 />
               </div>
             </div>
           </div>
 
-          <div className="modal-footer" style={{ padding: "12px 20px", display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+          <div
+            className="modal-footer"
+            style={{
+              padding: '12px 20px',
+              display: 'flex',
+              justifyContent: 'flex-end',
+              gap: '10px',
+            }}
+          >
             <button type="button" className="btn btn-secondary" onClick={onClose}>
               {t('common.cancel')}
             </button>

@@ -22,7 +22,7 @@ const SUPPORTED_COLOURS = new Set([
   'light_gray',
   'orange',
   'light_green4',
-  'light_green1'
+  'light_green1',
 ]);
 
 interface DecorationItem {
@@ -95,7 +95,7 @@ function computeMsbtDecorations(text: string): DecorationItem[] {
             endLine: lineNum,
             endCol,
             inlineClassName: `msbt-color-${currentColor} msbt-badge-tag`,
-            hoverMessage: `文字颜色: ${currentColor}`
+            hoverMessage: `文字颜色: ${currentColor}`,
           });
         }
       } else if (inContents) {
@@ -106,7 +106,7 @@ function computeMsbtDecorations(text: string): DecorationItem[] {
           endLine: lineNum,
           endCol,
           inlineClassName: `msbt-color-${currentColor}`,
-          hoverMessage: currentColor !== 'white' ? `高亮颜色: ${currentColor}` : undefined
+          hoverMessage: currentColor !== 'white' ? `高亮颜色: ${currentColor}` : undefined,
         });
       }
     }
@@ -139,8 +139,8 @@ export default function MsbtEditor({ filePath }: MsbtEditorProps) {
       range: new monacoRef.current.Range(d.startLine, d.startCol, d.endLine, d.endCol),
       options: {
         inlineClassName: d.inlineClassName,
-        hoverMessage: d.hoverMessage ? { value: d.hoverMessage } : undefined
-      }
+        hoverMessage: d.hoverMessage ? { value: d.hoverMessage } : undefined,
+      },
     }));
 
     if (decorationsCollectionRef.current) {
@@ -200,7 +200,7 @@ export default function MsbtEditor({ filePath }: MsbtEditorProps) {
       validate: true,
       allowComments: false,
       schemas: [],
-      enableSchemaRequest: false
+      enableSchemaRequest: false,
     });
 
     updateDecorations();
@@ -220,27 +220,67 @@ export default function MsbtEditor({ filePath }: MsbtEditorProps) {
       await message(t('msbtEditor.saveSuccess'), { title: t('common.success'), kind: 'info' });
     } catch (e: any) {
       setError(e.toString());
-      await message(t('msbtEditor.saveFailed', { error: e.toString() }), { title: t('common.error'), kind: 'error' });
+      await message(t('msbtEditor.saveFailed', { error: e.toString() }), {
+        title: t('common.error'),
+        kind: 'error',
+      });
     } finally {
       setIsSaving(false);
     }
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, width: '100%', height: '100%', backgroundColor: '#1e1e1e', color: '#d1d5db' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', borderBottom: '1px solid #333' }}>
-        <h2 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'white', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        flex: 1,
+        width: '100%',
+        height: '100%',
+        backgroundColor: '#1e1e1e',
+        color: '#d1d5db',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '12px',
+          borderBottom: '1px solid #333',
+        }}
+      >
+        <h2
+          style={{
+            fontSize: '1.125rem',
+            fontWeight: 600,
+            color: 'white',
+            margin: 0,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+          }}
+        >
           MSBT Editor - {filePath.split(/[/\\]/).pop()}
-          {isLoading && <span style={{ fontSize: '12px', color: '#9ca3af', fontWeight: 400 }}>{t('msbtEditor.loading')}</span>}
+          {isLoading && (
+            <span style={{ fontSize: '12px', color: '#9ca3af', fontWeight: 400 }}>
+              {t('msbtEditor.loading')}
+            </span>
+          )}
         </h2>
         <button
           onClick={handleSave}
           disabled={isSaving || isLoading}
-          style={{ 
-            display: 'flex', alignItems: 'center', gap: '8px', 
-            backgroundColor: (isSaving || isLoading) ? '#4b5563' : '#2563eb', 
-            color: 'white', padding: '6px 12px', borderRadius: '4px', 
-            border: 'none', cursor: (isSaving || isLoading) ? 'not-allowed' : 'pointer' 
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            backgroundColor: isSaving || isLoading ? '#4b5563' : '#2563eb',
+            color: 'white',
+            padding: '6px 12px',
+            borderRadius: '4px',
+            border: 'none',
+            cursor: isSaving || isLoading ? 'not-allowed' : 'pointer',
           }}
         >
           <Save size={16} />
@@ -248,7 +288,14 @@ export default function MsbtEditor({ filePath }: MsbtEditorProps) {
         </button>
       </div>
       {error && (
-        <div style={{ padding: '12px', backgroundColor: '#7f1d1d', color: '#fecaca', fontSize: '0.875rem' }}>
+        <div
+          style={{
+            padding: '12px',
+            backgroundColor: '#7f1d1d',
+            color: '#fecaca',
+            fontSize: '0.875rem',
+          }}
+        >
           {t('common.error')}: {error}
         </div>
       )}
@@ -266,11 +313,10 @@ export default function MsbtEditor({ filePath }: MsbtEditorProps) {
             wordWrap: 'off',
             fontSize: 13,
             fontFamily: 'monospace',
-            unicodeHighlight: { ambiguousCharacters: false, invisibleCharacters: false }
+            unicodeHighlight: { ambiguousCharacters: false, invisibleCharacters: false },
           }}
         />
       </div>
     </div>
   );
 }
-

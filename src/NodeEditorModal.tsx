@@ -15,7 +15,10 @@ interface NodeEditorModalProps {
 export default function NodeEditorModal({ node, actors, onSave, onCancel }: NodeEditorModalProps) {
   const { t, locale } = useTranslation();
   const [data, setData] = useState<any>(null);
-  const [feedbackMsg, setFeedbackMsg] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+  const [feedbackMsg, setFeedbackMsg] = useState<{
+    text: string;
+    type: 'success' | 'error';
+  } | null>(null);
 
   useEffect(() => {
     const orig = node?.originalData || node?.data?.originalData;
@@ -30,7 +33,7 @@ export default function NodeEditorModal({ node, actors, onSave, onCancel }: Node
   const eventData = data[typeKey];
   const params = eventData.params?.data || {};
   const isActorEvent = typeKey === 'Action' || typeKey === 'Switch';
-  
+
   const currentActorIdx = eventData.actor?.idx;
   const currentActor = currentActorIdx !== undefined ? actors[currentActorIdx] : null;
 
@@ -190,10 +193,18 @@ export default function NodeEditorModal({ node, actors, onSave, onCancel }: Node
   };
 
   return (
-    <div className="modal-overlay" onMouseDown={(e) => { if (e.target === e.currentTarget) onCancel(); }}>
-      <div className="modal-content" onClick={e => e.stopPropagation()}>
+    <div
+      className="modal-overlay"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) onCancel();
+      }}
+    >
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <div className="modal-title" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div
+            className="modal-title"
+            style={{ display: 'flex', alignItems: 'center', gap: '10px' }}
+          >
             <div className="modal-icon"></div>
             <span>{locale === 'zh' ? `编辑事件 (${typeKey})` : `Edit Event (${typeKey})`}</span>
             {feedbackMsg && (
@@ -202,7 +213,10 @@ export default function NodeEditorModal({ node, actors, onSave, onCancel }: Node
                   fontSize: '0.78rem',
                   fontWeight: 500,
                   color: feedbackMsg.type === 'success' ? '#4ade80' : '#f87171',
-                  background: feedbackMsg.type === 'success' ? 'rgba(74, 222, 128, 0.12)' : 'rgba(248, 113, 113, 0.12)',
+                  background:
+                    feedbackMsg.type === 'success'
+                      ? 'rgba(74, 222, 128, 0.12)'
+                      : 'rgba(248, 113, 113, 0.12)',
                   border: `1px solid ${feedbackMsg.type === 'success' ? 'rgba(74, 222, 128, 0.3)' : 'rgba(248, 113, 113, 0.3)'}`,
                   padding: '2px 8px',
                   borderRadius: '4px',
@@ -223,8 +237,16 @@ export default function NodeEditorModal({ node, actors, onSave, onCancel }: Node
         <div className="modal-body">
           {isActorEvent && (
             <div className="actor-selectors">
-              <select className="actor-select" value={(currentActorIdx === undefined || currentActorIdx === 65535) ? '' : currentActorIdx} onChange={handleActorChange}>
-                <option value="" disabled>{locale === 'zh' ? '-- 请选择角色 --' : '-- Select Actor --'}</option>
+              <select
+                className="actor-select"
+                value={
+                  currentActorIdx === undefined || currentActorIdx === 65535 ? '' : currentActorIdx
+                }
+                onChange={handleActorChange}
+              >
+                <option value="" disabled>
+                  {locale === 'zh' ? '-- 请选择角色 --' : '-- Select Actor --'}
+                </option>
                 {actors.map((actor, idx) => (
                   <option key={idx} value={idx}>
                     {actor.identifier?.name || 'UnknownActor'}
@@ -232,17 +254,38 @@ export default function NodeEditorModal({ node, actors, onSave, onCancel }: Node
                 ))}
               </select>
               <span className="separator">::</span>
-              <select className="action-select" value={((typeKey === 'Action' ? eventData.actor_action?.idx : eventData.actor_query?.idx) === undefined || (typeKey === 'Action' ? eventData.actor_action?.idx : eventData.actor_query?.idx) === 65535) ? '' : (typeKey === 'Action' ? eventData.actor_action?.idx : eventData.actor_query?.idx)} onChange={handleActionQueryChange}>
-                <option value="" disabled>{locale === 'zh' ? '-- 请选择动作/条件 --' : '-- Select Action/Query --'}</option>
-                {typeKey === 'Action' && currentActor && currentActor.actions ? (
-                  currentActor.actions.map((action: string, idx: number) => (
-                    <option key={idx} value={idx}>{action}</option>
-                  ))
-                ) : typeKey === 'Switch' && currentActor && currentActor.queries ? (
-                  currentActor.queries.map((query: string, idx: number) => (
-                    <option key={idx} value={idx}>{query}</option>
-                  ))
-                ) : null}
+              <select
+                className="action-select"
+                value={
+                  (typeKey === 'Action'
+                    ? eventData.actor_action?.idx
+                    : eventData.actor_query?.idx) === undefined ||
+                  (typeKey === 'Action'
+                    ? eventData.actor_action?.idx
+                    : eventData.actor_query?.idx) === 65535
+                    ? ''
+                    : typeKey === 'Action'
+                      ? eventData.actor_action?.idx
+                      : eventData.actor_query?.idx
+                }
+                onChange={handleActionQueryChange}
+              >
+                <option value="" disabled>
+                  {locale === 'zh' ? '-- 请选择动作/条件 --' : '-- Select Action/Query --'}
+                </option>
+                {typeKey === 'Action' && currentActor && currentActor.actions
+                  ? currentActor.actions.map((action: string, idx: number) => (
+                      <option key={idx} value={idx}>
+                        {action}
+                      </option>
+                    ))
+                  : typeKey === 'Switch' && currentActor && currentActor.queries
+                    ? currentActor.queries.map((query: string, idx: number) => (
+                        <option key={idx} value={idx}>
+                          {query}
+                        </option>
+                      ))
+                    : null}
               </select>
             </div>
           )}
@@ -251,28 +294,36 @@ export default function NodeEditorModal({ node, actors, onSave, onCancel }: Node
             <>
               <div className="form-section">
                 <div className="form-row">
-                  <span className="form-label">{locale === 'zh' ? '流程图(F):' : 'Flowchart:'}</span>
-                  <input 
-                    type="text" 
-                    className="form-input" 
-                    placeholder={locale === 'zh' ? "流程图名称（可选）" : "Flowchart name (Optional)"}
-                    value={eventData.res_flowchart_name || ''} 
-                    onChange={e => handleSubFlowChange('res_flowchart_name', e.target.value)}
+                  <span className="form-label">
+                    {locale === 'zh' ? '流程图(F):' : 'Flowchart:'}
+                  </span>
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder={
+                      locale === 'zh' ? '流程图名称（可选）' : 'Flowchart name (Optional)'
+                    }
+                    value={eventData.res_flowchart_name || ''}
+                    onChange={(e) => handleSubFlowChange('res_flowchart_name', e.target.value)}
                   />
                 </div>
                 <div className="form-row">
-                  <span className="form-label">{locale === 'zh' ? '入口点(E):' : 'Entry Point:'}</span>
-                  <input 
-                    type="text" 
-                    className="form-input" 
-                    placeholder={locale === 'zh' ? "入口点（必填）" : "Entry point name (Required)"}
-                    value={eventData.entry_point_name || ''} 
-                    onChange={e => handleSubFlowChange('entry_point_name', e.target.value)}
+                  <span className="form-label">
+                    {locale === 'zh' ? '入口点(E):' : 'Entry Point:'}
+                  </span>
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder={locale === 'zh' ? '入口点（必填）' : 'Entry point name (Required)'}
+                    value={eventData.entry_point_name || ''}
+                    onChange={(e) => handleSubFlowChange('entry_point_name', e.target.value)}
                   />
                 </div>
               </div>
               <div className="form-help-text">
-                {locale === 'zh' ? '说明：若未指定流程图，将使用当前流程图。' : 'Note: If flowchart is not specified, current flowchart is used.'}
+                {locale === 'zh'
+                  ? '说明：若未指定流程图，将使用当前流程图。'
+                  : 'Note: If flowchart is not specified, current flowchart is used.'}
               </div>
             </>
           )}
@@ -291,8 +342,12 @@ export default function NodeEditorModal({ node, actors, onSave, onCancel }: Node
         </div>
 
         <div className="modal-footer">
-          <button className="btn secondary" onClick={onCancel}>{t('common.cancel')}</button>
-          <button className="btn primary" onClick={handleSave}>{t('common.save')}</button>
+          <button className="btn secondary" onClick={onCancel}>
+            {t('common.cancel')}
+          </button>
+          <button className="btn primary" onClick={handleSave}>
+            {t('common.save')}
+          </button>
         </div>
       </div>
     </div>

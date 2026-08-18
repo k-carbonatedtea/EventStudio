@@ -20,7 +20,7 @@ const createEntryPointNode = (
   index: number,
   blinkingNodeId?: string | null,
   onRename?: (id: string, newName: string) => void,
-  onDoubleClick?: (data: any) => void
+  onDoubleClick?: (data: any) => void,
 ) => {
   const epId = `ep-${index}`;
   return {
@@ -31,14 +31,20 @@ const createEntryPointNode = (
       name: ep.name,
       isBlinking: blinkingNodeId === epId,
       onRename: onRename,
-      onDoubleClick: onDoubleClick
+      onDoubleClick: onDoubleClick,
     },
-    position: { x: 0, y: 0 }
+    position: { x: 0, y: 0 },
   };
 };
 
 // 检查节点合法性
-const isNodeInvalid = (i: number, typeKey: string, eventData: any, joinNodeIds: Set<number>, forkNodesTargetingJoin: Map<number, number[]>) => {
+const isNodeInvalid = (
+  i: number,
+  typeKey: string,
+  eventData: any,
+  joinNodeIds: Set<number>,
+  forkNodesTargetingJoin: Map<number, number[]>,
+) => {
   if (typeKey === 'Join') {
     return !forkNodesTargetingJoin.has(i) || forkNodesTargetingJoin.get(i)!.length === 0;
   } else if (typeKey === 'Fork') {
@@ -53,27 +59,34 @@ const isNodeInvalid = (i: number, typeKey: string, eventData: any, joinNodeIds: 
 const getNodeLabel = (typeKey: string, eventData: any, actors: any[]) => {
   if (typeKey === 'Action') {
     const actor = actors[eventData.actor?.idx];
-    return `${actor?.identifier?.name || "UnknownActor"} :: ${actor?.actions?.[eventData.actor_action?.idx] || "UnknownAction"}`;
+    return `${actor?.identifier?.name || 'UnknownActor'} :: ${actor?.actions?.[eventData.actor_action?.idx] || 'UnknownAction'}`;
   } else if (typeKey === 'Switch') {
     const actor = actors[eventData.actor?.idx];
-    return `${actor?.identifier?.name || "UnknownActor"} :: ${actor?.queries?.[eventData.actor_query?.idx] || "UnknownQuery"}`;
+    return `${actor?.identifier?.name || 'UnknownActor'} :: ${actor?.queries?.[eventData.actor_query?.idx] || 'UnknownQuery'}`;
   } else if (typeKey === 'SubFlow') {
     return `${eventData.res_flowchart_name} :: ${eventData.entry_point_name}`;
   } else if (typeKey === 'Fork') {
     return `Forks: ${eventData.forks?.length || 0}`;
   } else if (typeKey === 'Join') {
-    return "Wait for parallel join";
+    return 'Wait for parallel join';
   }
-  return "";
+  return '';
 };
 
 // 提取节点中绑定的 MessageId 对应文本
-const getEventMessageText = (eventData: any, messageDict?: Record<string, string>): string | undefined => {
+const getEventMessageText = (
+  eventData: any,
+  messageDict?: Record<string, string>,
+): string | undefined => {
   if (!messageDict || !eventData) return undefined;
   const paramsData = eventData?.params?.data;
   if (!paramsData) return undefined;
   for (const [k, v] of Object.entries(paramsData)) {
-    if (k.toLowerCase() === 'messageid' || k.toLowerCase() === 'message_id' || k.toLowerCase() === 'msgid') {
+    if (
+      k.toLowerCase() === 'messageid' ||
+      k.toLowerCase() === 'message_id' ||
+      k.toLowerCase() === 'msgid'
+    ) {
       const paramType = typeof v === 'object' && v !== null ? Object.keys(v)[0] : '';
       const rawVal = typeof v === 'object' && v !== null ? (v as any)[paramType] : v;
       const text = resolveMessageText(rawVal, messageDict);
@@ -85,17 +98,17 @@ const getEventMessageText = (eventData: any, messageDict?: Record<string, string
 
 // 创建事件节点
 const createEventNode = (
-  i: number, 
-  ev: any, 
-  typeKey: string, 
-  eventData: any, 
+  i: number,
+  ev: any,
+  typeKey: string,
+  eventData: any,
   initialNodes: any[],
   actors: any[],
-  joinNodeIds: Set<number>, 
+  joinNodeIds: Set<number>,
   forkNodesTargetingJoin: Map<number, number[]>,
-  params: BuildFlowParams
+  params: BuildFlowParams,
 ) => {
-  if (initialNodes.some(n => n.id === i.toString())) return;
+  if (initialNodes.some((n) => n.id === i.toString())) return;
   const label = getNodeLabel(typeKey, eventData, actors);
   const messageText = getEventMessageText(eventData, params.messageDict);
 
@@ -115,14 +128,20 @@ const createEventNode = (
       isBlinking: params.blinkingNodeId === i.toString(),
       onSelect: params.onNodeSelect,
       onDoubleClick: params.onNodeDoubleClick,
-      onContextMenu: params.onNodeContextMenu
+      onContextMenu: params.onNodeContextMenu,
     },
     position: { x: 0, y: 0 },
   });
 };
 
 // 处理普通下一步连接
-const handleNext = (nid: number, nextIdx: number | undefined, joinStack: number[], queue: number[], initialEdges: any[]) => {
+const handleNext = (
+  nid: number,
+  nextIdx: number | undefined,
+  joinStack: number[],
+  queue: number[],
+  initialEdges: any[],
+) => {
   if (nextIdx === 65535 || nextIdx === undefined) {
     if (joinStack.length > 0) {
       initialEdges.push({
@@ -136,7 +155,7 @@ const handleNext = (nid: number, nextIdx: number | undefined, joinStack: number[
     }
     return;
   }
-  
+
   initialEdges.push({
     id: `e-${nid}-${nextIdx}`,
     source: nid.toString(),
@@ -149,7 +168,15 @@ const handleNext = (nid: number, nextIdx: number | undefined, joinStack: number[
 
 // 根据 EVFL 数据构建 React Flow 的节点和连线数组
 export function useFlowBuilder(params: BuildFlowParams) {
-  const { evflData, focusNodeId, expandAllParams, messageDict, blinkingNodeId, onNodeSelect, onNodeContextMenu } = params;
+  const {
+    evflData,
+    focusNodeId,
+    expandAllParams,
+    messageDict,
+    blinkingNodeId,
+    onNodeSelect,
+    onNodeContextMenu,
+  } = params;
 
   const result = useMemo(() => {
     if (!evflData || !evflData.flowchart || !evflData.flowchart.events) {
@@ -160,7 +187,7 @@ export function useFlowBuilder(params: BuildFlowParams) {
     const events = flowchart.events;
     const actors = flowchart.actors || [];
     const entryPoints = flowchart.entry_points || [];
-    
+
     // 验证 Fork/Join 规则
     const joinNodeIds = new Set<number>();
     const forkNodesTargetingJoin = new Map<number, number[]>(); // joinIdx -> forkIdx[]
@@ -188,7 +215,15 @@ export function useFlowBuilder(params: BuildFlowParams) {
     // 处理 EntryPoint
     if (!focusNodeId) {
       entryPoints.forEach((ep: any, index: number) => {
-        initialNodes.push(createEntryPointNode(ep, index, blinkingNodeId, params.onRenameEntryPoint, params.onNodeDoubleClick));
+        initialNodes.push(
+          createEntryPointNode(
+            ep,
+            index,
+            blinkingNodeId,
+            params.onRenameEntryPoint,
+            params.onNodeDoubleClick,
+          ),
+        );
       });
     }
 
@@ -196,32 +231,42 @@ export function useFlowBuilder(params: BuildFlowParams) {
     const traverse = (startIdx: number, initialJoinStack: number[]) => {
       const queue = [startIdx];
       const joinStack = [...initialJoinStack];
-      
+
       while (queue.length > 0) {
         const i = queue.shift()!;
         if (visited.has(i)) continue;
         visited.add(i);
-        
+
         const ev = events[i];
         if (!ev) continue;
         const typeKey = Object.keys(ev.data)[0];
         const eventData = ev.data[typeKey];
-        
-        createEventNode(i, ev, typeKey, eventData, initialNodes, actors, joinNodeIds, forkNodesTargetingJoin, params);
-        
+
+        createEventNode(
+          i,
+          ev,
+          typeKey,
+          eventData,
+          initialNodes,
+          actors,
+          joinNodeIds,
+          forkNodesTargetingJoin,
+          params,
+        );
+
         if (typeKey === 'Action' || typeKey === 'SubFlow') {
           handleNext(i, eventData.nxt?.idx, joinStack, queue, initialEdges);
         } else if (typeKey === 'Switch') {
           let caseCount = 0;
           let hasCase0 = false;
           let hasCase1 = false;
-          
+
           if (eventData.cases) {
             Object.entries(eventData.cases).forEach(([caseValue, c]: [string, any]) => {
               if (c.idx !== 65535) {
                 caseCount++;
-                if (caseValue === "0") hasCase0 = true;
-                if (caseValue === "1") hasCase1 = true;
+                if (caseValue === '0') hasCase0 = true;
+                if (caseValue === '1') hasCase1 = true;
                 initialEdges.push({
                   id: `e-${i}-case${caseValue}-${c.idx}`,
                   source: i.toString(),
@@ -277,7 +322,15 @@ export function useFlowBuilder(params: BuildFlowParams) {
       if (focusNodeId.startsWith('ep-')) {
         const epIndex = parseInt(focusNodeId.replace('ep-', ''));
         const ep = entryPoints[epIndex];
-        initialNodes.push(createEntryPointNode(ep, epIndex, blinkingNodeId, params.onRenameEntryPoint, params.onNodeDoubleClick));
+        initialNodes.push(
+          createEntryPointNode(
+            ep,
+            epIndex,
+            blinkingNodeId,
+            params.onRenameEntryPoint,
+            params.onNodeDoubleClick,
+          ),
+        );
         if (ep.main_event && ep.main_event.idx !== 65535) {
           initialEdges.push({
             id: `e-${focusNodeId}-${ep.main_event.idx}`,
@@ -285,7 +338,7 @@ export function useFlowBuilder(params: BuildFlowParams) {
             target: ep.main_event.idx.toString(),
             type: 'animated',
             markerEnd: { type: MarkerType.ArrowClosed, color: '#10b981' },
-            style: { stroke: '#10b981', strokeWidth: 2 }
+            style: { stroke: '#10b981', strokeWidth: 2 },
           });
           traverse(ep.main_event.idx, []);
         }
@@ -303,7 +356,7 @@ export function useFlowBuilder(params: BuildFlowParams) {
           if (!ev || !ev.data) return;
           const typeKey = Object.keys(ev.data)[0];
           const eventData = ev.data[typeKey];
-          
+
           if (typeKey === 'Action' || typeKey === 'SubFlow') {
             if (eventData.nxt?.idx !== undefined && eventData.nxt?.idx !== 65535) {
               addEdge(i, eventData.nxt.idx);
@@ -330,11 +383,11 @@ export function useFlowBuilder(params: BuildFlowParams) {
         const startNode = parseInt(focusNodeId);
         const compQueue = [startNode];
         targetComponent.add(startNode);
-        
+
         while (compQueue.length > 0) {
           const curr = compQueue.shift()!;
           if (adj.has(curr)) {
-            adj.get(curr)!.forEach(neighbor => {
+            adj.get(curr)!.forEach((neighbor) => {
               if (!targetComponent.has(neighbor)) {
                 targetComponent.add(neighbor);
                 compQueue.push(neighbor);
@@ -345,23 +398,35 @@ export function useFlowBuilder(params: BuildFlowParams) {
 
         // Find all entry points that point to this component
         entryPoints.forEach((ep: any, index: number) => {
-          if (ep.main_event && ep.main_event.idx !== 65535 && targetComponent.has(ep.main_event.idx)) {
+          if (
+            ep.main_event &&
+            ep.main_event.idx !== 65535 &&
+            targetComponent.has(ep.main_event.idx)
+          ) {
             const epId = `ep-${index}`;
-            initialNodes.push(createEntryPointNode(ep, index, blinkingNodeId, params.onRenameEntryPoint, params.onNodeDoubleClick));
+            initialNodes.push(
+              createEntryPointNode(
+                ep,
+                index,
+                blinkingNodeId,
+                params.onRenameEntryPoint,
+                params.onNodeDoubleClick,
+              ),
+            );
             initialEdges.push({
               id: `e-${epId}-${ep.main_event.idx}`,
               source: epId,
               target: ep.main_event.idx.toString(),
               type: 'animated',
               markerEnd: { type: MarkerType.ArrowClosed, color: '#10b981' },
-              style: { stroke: '#10b981', strokeWidth: 2 }
+              style: { stroke: '#10b981', strokeWidth: 2 },
             });
             traverse(ep.main_event.idx, []);
           }
         });
 
         // Traverse all nodes in the component to ensure disconnected fragments are included
-        targetComponent.forEach(nodeIdx => {
+        targetComponent.forEach((nodeIdx) => {
           if (!visited.has(nodeIdx)) {
             traverse(nodeIdx, []);
           }
@@ -377,7 +442,7 @@ export function useFlowBuilder(params: BuildFlowParams) {
             target: ep.main_event.idx.toString(),
             type: 'animated',
             markerEnd: { type: MarkerType.ArrowClosed, color: '#10b981' },
-            style: { stroke: '#10b981', strokeWidth: 2 }
+            style: { stroke: '#10b981', strokeWidth: 2 },
           });
           traverse(ep.main_event.idx, []);
         }
@@ -392,7 +457,16 @@ export function useFlowBuilder(params: BuildFlowParams) {
     }
 
     return { initialNodes, initialEdges, currentFlowName: flowchart.name };
-  }, [evflData, focusNodeId, expandAllParams, messageDict, blinkingNodeId, onNodeSelect, onNodeContextMenu, params.onRenameEntryPoint]);
+  }, [
+    evflData,
+    focusNodeId,
+    expandAllParams,
+    messageDict,
+    blinkingNodeId,
+    onNodeSelect,
+    onNodeContextMenu,
+    params.onRenameEntryPoint,
+  ]);
 
   return result;
 }

@@ -1,7 +1,7 @@
-import { FilePlus, RotateCw } from "lucide-react";
-import FileTree from "./FileTree";
-import { FileNode } from "../types/fileTree";
-import { useTranslation } from "../i18n";
+import { FilePlus, RotateCw } from 'lucide-react';
+import FileTree from './FileTree';
+import { FileNode } from '../types/fileTree';
+import { useTranslation } from '../i18n';
 
 interface AppSidebarProps {
   modFolderPath: string | null;
@@ -35,16 +35,19 @@ export default function AppSidebar({
     return null;
   }
 
-  const title = modFolderPath ? modFolderPath.split(/[/\\]/).pop() : "Local File";
+  const title = modFolderPath ? modFolderPath.split(/[/\\]/).pop() : 'Local File';
 
   return (
     <>
       <div className="pack-sidebar" style={{ width: sidebarWidth, minWidth: 150, flexShrink: 0 }}>
         <div className="pack-sidebar-header">
-          <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={modFolderPath || filePath || ""}>
+          <span
+            style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+            title={modFolderPath || filePath || ''}
+          >
             {title}
           </span>
-          <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
+          <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
             <button
               className="sidebar-tool-btn"
               title={t('sidebar.newFile')}
@@ -78,7 +81,7 @@ export default function AppSidebar({
         </div>
       </div>
       <div
-        className={`sidebar-resizer ${isResizingSidebar ? "resizing" : ""}`}
+        className={`sidebar-resizer ${isResizingSidebar ? 'resizing' : ''}`}
         onMouseDown={(e) => {
           e.preventDefault();
           setIsResizingSidebar(true);

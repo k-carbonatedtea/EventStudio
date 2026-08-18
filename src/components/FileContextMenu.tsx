@@ -1,8 +1,8 @@
-import { useEffect, useRef } from "react";
-import { FilePlus, Edit2, Trash2, Code } from "lucide-react";
-import { FileNode } from "../types/fileTree";
-import { getParentDir } from "../utils/fileLoader";
-import { useTranslation } from "../i18n";
+import { useEffect, useRef } from 'react';
+import { FilePlus, Edit2, Trash2, Code } from 'lucide-react';
+import { FileNode } from '../types/fileTree';
+import { getParentDir } from '../utils/fileLoader';
+import { useTranslation } from '../i18n';
 
 interface FileContextMenuProps {
   x: number;
@@ -37,11 +37,11 @@ export default function FileContextMenu({
     };
 
     setTimeout(() => {
-      document.addEventListener("click", handleClickOutside);
+      document.addEventListener('click', handleClickOutside);
     }, 10);
 
     return () => {
-      document.removeEventListener("click", handleClickOutside);
+      document.removeEventListener('click', handleClickOutside);
     };
   }, [onClose]);
 
@@ -53,7 +53,7 @@ export default function FileContextMenu({
   return (
     <div
       className="context-menu"
-      style={{ top: y, left: x, position: "fixed", zIndex: 1000 }}
+      style={{ top: y, left: x, position: 'fixed', zIndex: 1000 }}
       ref={menuRef}
       onContextMenu={(e) => e.preventDefault()}
     >
@@ -98,7 +98,7 @@ export default function FileContextMenu({
           <div className="menu-separator"></div>
           <div
             className="menu-item"
-            style={{ color: "#ef4444" }}
+            style={{ color: '#ef4444' }}
             onClick={() => {
               onDeleteFile(node);
               onClose();

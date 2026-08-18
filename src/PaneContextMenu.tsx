@@ -10,7 +10,14 @@ interface PaneContextMenuProps {
   onAction: (actionName: string, sourceNodeId: string | null) => void;
 }
 
-export default function PaneContextMenu({ x, y, sourceNodeId, isFocused, onClose, onAction }: PaneContextMenuProps) {
+export default function PaneContextMenu({
+  x,
+  y,
+  sourceNodeId,
+  isFocused,
+  onClose,
+  onAction,
+}: PaneContextMenuProps) {
   const { locale } = useTranslation();
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -21,11 +28,11 @@ export default function PaneContextMenu({ x, y, sourceNodeId, isFocused, onClose
         onClose();
       }
     };
-    
+
     setTimeout(() => {
       document.addEventListener('click', handleClickOutside);
     }, 10);
-    
+
     return () => {
       document.removeEventListener('click', handleClickOutside);
     };
@@ -37,9 +44,9 @@ export default function PaneContextMenu({ x, y, sourceNodeId, isFocused, onClose
   };
 
   return (
-    <div 
-      className="context-menu" 
-      style={{ top: y, left: x }} 
+    <div
+      className="context-menu"
+      style={{ top: y, left: x }}
       ref={menuRef}
       onContextMenu={(e) => e.preventDefault()}
     >

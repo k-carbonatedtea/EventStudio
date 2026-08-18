@@ -10,18 +10,22 @@ interface EventManagerProps {
   onEditForkNode: (node: any) => void;
 }
 
-export default function EventManager({ 
-  evflData, 
+export default function EventManager({
+  evflData,
   onUpdateEvflData,
   onEditNode,
   onEditSwitchNode,
-  onEditForkNode
+  onEditForkNode,
 }: EventManagerProps) {
   const { t, locale } = useTranslation();
   const [selectedEventIdx, setSelectedEventIdx] = useState<number | null>(null);
 
   if (!evflData || !evflData.flowchart) {
-    return <div className="event-manager" style={{ padding: 20 }}>{t('events.noEvents')}</div>;
+    return (
+      <div className="event-manager" style={{ padding: 20 }}>
+        {t('events.noEvents')}
+      </div>
+    );
   }
 
   const events = evflData.flowchart.events || [];
@@ -39,7 +43,7 @@ export default function EventManager({
         name: ev.name,
         type: typeKey,
         originalData: ev.data,
-      }
+      },
     };
     if (typeKey === 'Switch') {
       onEditSwitchNode(mockNode);
@@ -53,15 +57,16 @@ export default function EventManager({
   const handleDeleteEvent = (idx: number, e: React.MouseEvent) => {
     e.stopPropagation();
     const evName = events[idx]?.name || `#${idx}`;
-    const confirmMsg = locale === 'zh'
-      ? `确定要删除事件 "${evName}" 吗？此操作可能影响相关连线。`
-      : `Are you sure you want to delete event "${evName}"? This may affect existing connections.`;
+    const confirmMsg =
+      locale === 'zh'
+        ? `确定要删除事件 "${evName}" 吗？此操作可能影响相关连线。`
+        : `Are you sure you want to delete event "${evName}"? This may affect existing connections.`;
     if (!confirm(confirmMsg)) return;
-    
+
     const newEvflData = structuredClone(evflData);
     newEvflData.flowchart.events.splice(idx, 1);
-    
-    onUpdateEvflData(newEvflData, `Delete Event: ${evName}`, "Removed from event list");
+
+    onUpdateEvflData(newEvflData, `Delete Event: ${evName}`, 'Removed from event list');
     if (selectedEventIdx === idx) {
       setSelectedEventIdx(null);
     } else if (selectedEventIdx !== null && selectedEventIdx > idx) {
@@ -83,12 +88,12 @@ export default function EventManager({
     }
 
     const getActorName = (idx: number) => {
-      if (idx === 65535) return "-";
+      if (idx === 65535) return '-';
       return actors[idx]?.identifier?.name || `Actor[${idx}]`;
     };
 
     const getActionQueryName = (actorIdx: number, actionIdx: number, isQuery: boolean) => {
-      if (actorIdx === 65535 || actionIdx === 65535) return "-";
+      if (actorIdx === 65535 || actionIdx === 65535) return '-';
       const actor = actors[actorIdx];
       if (!actor) return `[${actionIdx}]`;
       const arr = isQuery ? actor.queries : actor.actions;
@@ -97,9 +102,22 @@ export default function EventManager({
 
     return (
       <div style={{ padding: '16px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px', alignItems: 'center' }}>
-          <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#f8fafc' }}>{selectedEvent.name} ({selectedType})</h3>
-          <button className="am-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }} onClick={(e) => handleEditEvent(selectedEventIdx!, e)}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            marginBottom: '16px',
+            alignItems: 'center',
+          }}
+        >
+          <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#f8fafc' }}>
+            {selectedEvent.name} ({selectedType})
+          </h3>
+          <button
+            className="am-btn"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
+            onClick={(e) => handleEditEvent(selectedEventIdx!, e)}
+          >
             <Edit size={16} /> {locale === 'zh' ? '编辑事件' : 'Edit Event'}
           </button>
         </div>
@@ -108,22 +126,54 @@ export default function EventManager({
           <tbody>
             {selectedType === 'Action' && (
               <>
-                <tr><td style={{ width: 120, fontWeight: 600 }}>{t('nodes.actor')}</td><td>{getActorName(selectedData.actor?.idx)}</td></tr>
-                <tr><td style={{ fontWeight: 600 }}>{t('nodes.action')}</td><td>{getActionQueryName(selectedData.actor?.idx, selectedData.actor_action?.idx, false)}</td></tr>
-                <tr><td style={{ fontWeight: 600 }}>Next Node</td><td>{selectedData.nxt?.idx === 65535 ? 'None (End)' : selectedData.nxt?.idx}</td></tr>
+                <tr>
+                  <td style={{ width: 120, fontWeight: 600 }}>{t('nodes.actor')}</td>
+                  <td>{getActorName(selectedData.actor?.idx)}</td>
+                </tr>
+                <tr>
+                  <td style={{ fontWeight: 600 }}>{t('nodes.action')}</td>
+                  <td>
+                    {getActionQueryName(
+                      selectedData.actor?.idx,
+                      selectedData.actor_action?.idx,
+                      false,
+                    )}
+                  </td>
+                </tr>
+                <tr>
+                  <td style={{ fontWeight: 600 }}>Next Node</td>
+                  <td>{selectedData.nxt?.idx === 65535 ? 'None (End)' : selectedData.nxt?.idx}</td>
+                </tr>
               </>
             )}
-            
+
             {selectedType === 'Switch' && (
               <>
-                <tr><td style={{ width: 120, fontWeight: 600 }}>{t('nodes.actor')}</td><td>{getActorName(selectedData.actor?.idx)}</td></tr>
-                <tr><td style={{ fontWeight: 600 }}>Query</td><td>{getActionQueryName(selectedData.actor?.idx, selectedData.actor_query?.idx, true)}</td></tr>
-                <tr><td style={{ fontWeight: 600 }}>Cases</td>
+                <tr>
+                  <td style={{ width: 120, fontWeight: 600 }}>{t('nodes.actor')}</td>
+                  <td>{getActorName(selectedData.actor?.idx)}</td>
+                </tr>
+                <tr>
+                  <td style={{ fontWeight: 600 }}>Query</td>
+                  <td>
+                    {getActionQueryName(
+                      selectedData.actor?.idx,
+                      selectedData.actor_query?.idx,
+                      true,
+                    )}
+                  </td>
+                </tr>
+                <tr>
+                  <td style={{ fontWeight: 600 }}>Cases</td>
                   <td>
                     <ul style={{ margin: 0, paddingLeft: 20 }}>
-                      {Object.entries(selectedData.cases || {}).map(([val, target]: [string, any]) => (
-                        <li key={val}>Value {val} ➔ Node {target.idx}</li>
-                      ))}
+                      {Object.entries(selectedData.cases || {}).map(
+                        ([val, target]: [string, any]) => (
+                          <li key={val}>
+                            Value {val} ➔ Node {target.idx}
+                          </li>
+                        ),
+                      )}
                     </ul>
                   </td>
                 </tr>
@@ -132,8 +182,12 @@ export default function EventManager({
 
             {selectedType === 'Fork' && (
               <>
-                <tr><td style={{ width: 120, fontWeight: 600 }}>Join Node</td><td>{selectedData.join?.idx}</td></tr>
-                <tr><td style={{ fontWeight: 600 }}>Branches</td>
+                <tr>
+                  <td style={{ width: 120, fontWeight: 600 }}>Join Node</td>
+                  <td>{selectedData.join?.idx}</td>
+                </tr>
+                <tr>
+                  <td style={{ fontWeight: 600 }}>Branches</td>
                   <td>
                     <ul style={{ margin: 0, paddingLeft: 20 }}>
                       {(selectedData.forks || []).map((f: any, i: number) => (
@@ -147,15 +201,27 @@ export default function EventManager({
 
             {selectedType === 'Join' && (
               <>
-                <tr><td style={{ width: 120, fontWeight: 600 }}>Next Node</td><td>{selectedData.nxt?.idx === 65535 ? 'None (End)' : selectedData.nxt?.idx}</td></tr>
+                <tr>
+                  <td style={{ width: 120, fontWeight: 600 }}>Next Node</td>
+                  <td>{selectedData.nxt?.idx === 65535 ? 'None (End)' : selectedData.nxt?.idx}</td>
+                </tr>
               </>
             )}
 
             {selectedType === 'SubFlow' && (
               <>
-                <tr><td style={{ width: 120, fontWeight: 600 }}>Flowchart</td><td>{selectedData.res_flowchart_name}</td></tr>
-                <tr><td style={{ fontWeight: 600 }}>Entry Point</td><td>{selectedData.entry_point_name}</td></tr>
-                <tr><td style={{ fontWeight: 600 }}>Next Node</td><td>{selectedData.nxt?.idx === 65535 ? 'None (End)' : selectedData.nxt?.idx}</td></tr>
+                <tr>
+                  <td style={{ width: 120, fontWeight: 600 }}>Flowchart</td>
+                  <td>{selectedData.res_flowchart_name}</td>
+                </tr>
+                <tr>
+                  <td style={{ fontWeight: 600 }}>Entry Point</td>
+                  <td>{selectedData.entry_point_name}</td>
+                </tr>
+                <tr>
+                  <td style={{ fontWeight: 600 }}>Next Node</td>
+                  <td>{selectedData.nxt?.idx === 65535 ? 'None (End)' : selectedData.nxt?.idx}</td>
+                </tr>
               </>
             )}
           </tbody>
@@ -202,7 +268,9 @@ export default function EventManager({
     <div className="actor-manager">
       <div className="am-top" style={{ flex: 1.5 }}>
         <div className="am-header">
-          <span>{locale === 'zh' ? `共 ${events.length} 个事件` : `Total ${events.length} Events`}</span>
+          <span>
+            {locale === 'zh' ? `共 ${events.length} 个事件` : `Total ${events.length} Events`}
+          </span>
         </div>
         <div className="am-content">
           <table className="am-table">
@@ -220,20 +288,23 @@ export default function EventManager({
               {events.map((event: any, idx: number) => {
                 const typeKey = Object.keys(event.data)[0];
                 const evtData = event.data[typeKey];
-                
-                let nextNodeStr = "-";
-                if (evtData.nxt && evtData.nxt.idx !== 65535) nextNodeStr = `Node ${evtData.nxt.idx}`;
-                else if (typeKey === 'Switch') nextNodeStr = `${Object.keys(evtData.cases || {}).length} ${locale === 'zh' ? '分支' : 'Cases'}`;
+
+                let nextNodeStr = '-';
+                if (evtData.nxt && evtData.nxt.idx !== 65535)
+                  nextNodeStr = `Node ${evtData.nxt.idx}`;
+                else if (typeKey === 'Switch')
+                  nextNodeStr = `${Object.keys(evtData.cases || {}).length} ${locale === 'zh' ? '分支' : 'Cases'}`;
                 else if (typeKey === 'Fork') nextNodeStr = `➔ Join ${evtData.join?.idx}`;
 
-                let actorStr = "-";
+                let actorStr = '-';
                 if (evtData.actor && evtData.actor.idx !== 65535) {
-                  actorStr = actors[evtData.actor.idx]?.identifier?.name || `Actor[${evtData.actor.idx}]`;
+                  actorStr =
+                    actors[evtData.actor.idx]?.identifier?.name || `Actor[${evtData.actor.idx}]`;
                 }
 
                 return (
-                  <tr 
-                    key={idx} 
+                  <tr
+                    key={idx}
                     className={selectedEventIdx === idx ? 'selected' : ''}
                     onClick={() => setSelectedEventIdx(idx)}
                     onDoubleClick={(e) => handleEditEvent(idx, e)}
@@ -245,10 +316,18 @@ export default function EventManager({
                     <td>{actorStr}</td>
                     <td>{nextNodeStr}</td>
                     <td>
-                      <button className="am-btn" style={{ padding: '2px 6px', marginRight: 4 }} onClick={(e) => handleEditEvent(idx, e)}>
+                      <button
+                        className="am-btn"
+                        style={{ padding: '2px 6px', marginRight: 4 }}
+                        onClick={(e) => handleEditEvent(idx, e)}
+                      >
                         <Edit size={14} />
                       </button>
-                      <button className="am-btn" style={{ padding: '2px 6px', color: '#ef4444' }} onClick={(e) => handleDeleteEvent(idx, e)}>
+                      <button
+                        className="am-btn"
+                        style={{ padding: '2px 6px', color: '#ef4444' }}
+                        onClick={(e) => handleDeleteEvent(idx, e)}
+                      >
                         <Trash2 size={14} />
                       </button>
                     </td>
@@ -266,7 +345,7 @@ export default function EventManager({
           </table>
         </div>
       </div>
-      
+
       <div className="am-bottom" style={{ flex: 1 }}>
         <div className="am-content" style={{ height: '100%' }}>
           {renderDetails()}

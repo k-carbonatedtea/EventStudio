@@ -18,10 +18,13 @@ export const zh: TranslationSchema = {
     key: '键',
     browse: '浏览...',
     ok: '确定',
+    add: '添加...',
     success: '成功',
     error: '错误',
     warning: '警告',
     info: '提示',
+    fps: '帧率',
+    fpsTooltip: '实时渲染帧率',
   },
   menu: {
     file: '文件(F)',
@@ -236,6 +239,8 @@ export const zh: TranslationSchema = {
       title: '重命名文件',
       label: '新文件名：',
       placeholder: '请输入新文件名',
+      originalFileName: '原文件名',
+      includeExtension: '包含后缀名',
     },
   },
   settings: {
@@ -292,10 +297,12 @@ export const zh: TranslationSchema = {
     tabCredits: '致谢与鸣谢',
     rustLibsTitle: '后端核心库 (Rust)',
     frontendLibsTitle: '前端界面库 (React / TypeScript)',
-    creditsTip: '本软件的开发离不开任天堂逆向工程与开源 Mod 社区开拓者们的杰出工作，在此致以最崇高的谢意！',
+    creditsTip:
+      '本软件的开发离不开任天堂逆向工程与开源 Mod 社区开拓者们的杰出工作，在此致以最崇高的谢意！',
     coreContributors: '核心生态贡献者',
     communityTitle: '开源社区与平台',
-    communityDesc: '感谢 Tauri 团队提供优秀的跨平台桌面端底层架构支持，感谢 React Flow 与 Monaco Editor 团队提供出色的前端可视化与编辑器组件。',
+    communityDesc:
+      '感谢 Tauri 团队提供优秀的跨平台桌面端底层架构支持，感谢 React Flow 与 Monaco Editor 团队提供出色的前端可视化与编辑器组件。',
   },
   help: zhHelp,
   tabs: {

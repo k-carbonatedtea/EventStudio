@@ -9,7 +9,7 @@ import {
   addNewChild,
   unlinkChild,
   removeEvent,
-} from "../utils/evflOperations";
+} from '../utils/evflOperations';
 
 interface UseFlowOperationsParams {
   evflData: any;
@@ -33,21 +33,21 @@ export function useFlowOperations({
 }: UseFlowOperationsParams) {
   // 创建新节点
   const handleCreateNewNode = (actionType: string, sourceNodeId: string | null) => {
-    if (actionType === "restore_view") {
+    if (actionType === 'restore_view') {
       setFocusNodeId(null);
       return;
     }
     const newData = createNewNode(evflData, actionType, sourceNodeId);
     if (newData) {
       const typeLabels: Record<string, string> = {
-        Action: "动作节点 (Action)",
-        Switch: "条件分支 (Switch)",
-        Fork: "并行分支 (Fork)",
-        Join: "汇合节点 (Join)",
-        SubFlow: "子流程节点 (SubFlow)",
+        Action: '动作节点 (Action)',
+        Switch: '条件分支 (Switch)',
+        Fork: '并行分支 (Fork)',
+        Join: '汇合节点 (Join)',
+        SubFlow: '子流程节点 (SubFlow)',
       };
       const label = typeLabels[actionType] || `${actionType} 节点`;
-      const detail = sourceNodeId ? `连接自节点 #${sourceNodeId}` : "独立节点";
+      const detail = sourceNodeId ? `连接自节点 #${sourceNodeId}` : '独立节点';
       pushToHistory(newData, `创建${label}`, detail);
     }
   };
@@ -55,16 +55,18 @@ export function useFlowOperations({
   // 链接节点
   const handleLinkNodes = (sourceNodeId: string, targetNodeId: string) => {
     const targetEvent = evflData?.flowchart?.events?.[parseInt(targetNodeId)];
-    if (targetEvent && Object.keys(targetEvent.data)[0] === "Join") {
+    if (targetEvent && Object.keys(targetEvent.data)[0] === 'Join') {
       setBlinkingNodeId(sourceNodeId);
       setTimeout(() => setBlinkingNodeId(null), 1500);
       return;
     }
     const newData = linkNodes(evflData, sourceNodeId, targetNodeId);
     if (newData) {
-      const srcName = evflData?.flowchart?.events?.[parseInt(sourceNodeId)]?.name || `#${sourceNodeId}`;
-      const dstName = evflData?.flowchart?.events?.[parseInt(targetNodeId)]?.name || `#${targetNodeId}`;
-      pushToHistory(newData, `连接节点: ${srcName} → ${dstName}`, "建立流程连线");
+      const srcName =
+        evflData?.flowchart?.events?.[parseInt(sourceNodeId)]?.name || `#${sourceNodeId}`;
+      const dstName =
+        evflData?.flowchart?.events?.[parseInt(targetNodeId)]?.name || `#${targetNodeId}`;
+      pushToHistory(newData, `连接节点: ${srcName} → ${dstName}`, '建立流程连线');
     }
   };
 
@@ -88,18 +90,18 @@ export function useFlowOperations({
   const handleNodeAction = (actionName: string, node: any) => {
     const nodeLabel = node.data?.name || `#${node.id}`;
     switch (actionName) {
-      case "Edit cases...":
+      case 'Edit cases...':
         setEditingSwitchNode(node.data);
         break;
-      case "Edit branches...":
+      case 'Edit branches...':
         setEditingForkNode(node.data);
         break;
-      case "Add entry point here...": {
+      case 'Add entry point here...': {
         const newData = addEntryPoint(evflData, node.id);
-        if (newData) pushToHistory(newData, "添加入口点", `指向节点 ${nodeLabel}`);
+        if (newData) pushToHistory(newData, '添加入口点', `指向节点 ${nodeLabel}`);
         break;
       }
-      case "Rename entry point...": {
+      case 'Rename entry point...': {
         const epIndex = parseInt(String(node.id).replace('ep-', ''));
         const currentEp = evflData?.flowchart?.entry_points?.[epIndex];
         if (setEditingEntryPoint) {
@@ -107,32 +109,32 @@ export function useFlowOperations({
         }
         break;
       }
-      case "Remove entry point": {
+      case 'Remove entry point': {
         const newData = removeEntryPoint(evflData, node.id);
-        if (newData) pushToHistory(newData, "移除入口点", `入口点 ${nodeLabel}`);
+        if (newData) pushToHistory(newData, '移除入口点', `入口点 ${nodeLabel}`);
         break;
       }
-      case "Add new parent...": {
+      case 'Add new parent...': {
         const newData = addNewParent(evflData, node.id);
-        if (newData) pushToHistory(newData, "在上方插入新事件", `前置于 ${nodeLabel}`);
+        if (newData) pushToHistory(newData, '在上方插入新事件', `前置于 ${nodeLabel}`);
         break;
       }
-      case "Add new child...": {
+      case 'Add new child...': {
         const newData = addNewChild(evflData, node.id);
-        if (newData) pushToHistory(newData, "在下方插入新事件", `后置于 ${nodeLabel}`);
+        if (newData) pushToHistory(newData, '在下方插入新事件', `后置于 ${nodeLabel}`);
         break;
       }
-      case "Unlink child": {
+      case 'Unlink child': {
         const newData = unlinkChild(evflData, node.id);
-        if (newData) pushToHistory(newData, "取消子节点链接", `断开 ${nodeLabel} 的后续连接`);
+        if (newData) pushToHistory(newData, '取消子节点链接', `断开 ${nodeLabel} 的后续连接`);
         break;
       }
-      case "Remove event": {
+      case 'Remove event': {
         const newData = removeEvent(evflData, node.id);
-        if (newData) pushToHistory(newData, `移除事件: ${nodeLabel}`, "删除事件节点");
+        if (newData) pushToHistory(newData, `移除事件: ${nodeLabel}`, '删除事件节点');
         break;
       }
-      case "Show only connected events":
+      case 'Show only connected events':
         setFocusNodeId(node.id);
         break;
     }
