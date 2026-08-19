@@ -1,11 +1,20 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import fs from 'fs';
 
 const host = process.env.TAURI_DEV_HOST;
 
 // https://vite.dev/config/
 export default defineConfig(async () => ({
-  plugins: [react()],
+  plugins: [
+    react(),
+    {
+      name: 'copy-monaco',
+      closeBundle() {
+        fs.cpSync('node_modules/monaco-editor/min/vs', 'dist/vs', { recursive: true });
+      }
+    }
+  ],
   build: {
     chunkSizeWarningLimit: 2048,
     rollupOptions: {

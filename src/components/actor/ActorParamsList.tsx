@@ -30,19 +30,30 @@ export default function ActorParamsList({
     const trimmedKey = newParamKey.trim();
     if (!selectedActor || !trimmedKey || selectedActorIdx === null) return;
 
-    const newEvflData = structuredClone(evflData);
-    let params = newEvflData.flowchart.actors[selectedActorIdx].params;
-    if (!params) {
-      params = { data: {} };
-      newEvflData.flowchart.actors[selectedActorIdx].params = params;
-    }
+    const targetActor = evflData.flowchart.actors[selectedActorIdx];
+    const currentParams = targetActor.params || { data: {} };
 
     let parsedVal: any = newParamVal;
     if (newParamType === 'Int') parsedVal = parseInt(newParamVal, 10) || 0;
     else if (newParamType === 'Float') parsedVal = parseFloat(newParamVal) || 0.0;
     else if (newParamType === 'Bool') parsedVal = newParamVal === 'true';
 
-    params.data[trimmedKey] = { [newParamType]: parsedVal };
+    const newEvflData = {
+      ...evflData,
+      flowchart: {
+        ...evflData.flowchart,
+        actors: evflData.flowchart.actors.with(selectedActorIdx, {
+          ...targetActor,
+          params: {
+            ...currentParams,
+            data: {
+              ...currentParams.data,
+              [trimmedKey]: { [newParamType]: parsedVal }
+            }
+          }
+        })
+      }
+    };
     onUpdateEvflData(newEvflData, `Add Param: ${actorName}.${trimmedKey}`, `Type: ${newParamType}`);
     setNewParamKey('');
     setNewParamVal('');
@@ -52,12 +63,8 @@ export default function ActorParamsList({
   // 添加默认创建参数
   const handleAddDefaultParams = () => {
     if (!selectedActor || selectedActorIdx === null) return;
-    const newEvflData = structuredClone(evflData);
-    let params = newEvflData.flowchart.actors[selectedActorIdx].params;
-    if (!params) {
-      params = { data: {} };
-      newEvflData.flowchart.actors[selectedActorIdx].params = params;
-    }
+    const targetActor = evflData.flowchart.actors[selectedActorIdx];
+    const currentParams = targetActor.params || { data: {} };
     const defaultParams: Record<string, any> = {
       CreateMode: { Int: 0 },
       IsGrounding: { Bool: false },
@@ -69,19 +76,50 @@ export default function ActorParamsList({
       RotY: { Float: 0.0 },
       RotZ: { Float: 0.0 },
     };
+    
+    const newData = { ...currentParams.data };
     for (const [k, v] of Object.entries(defaultParams)) {
-      if (!params.data[k]) {
-        params.data[k] = v;
+      if (!newData[k]) {
+        newData[k] = v;
       }
     }
+
+    const newEvflData = {
+      ...evflData,
+      flowchart: {
+        ...evflData.flowchart,
+        actors: evflData.flowchart.actors.with(selectedActorIdx, {
+          ...targetActor,
+          params: {
+            ...currentParams,
+            data: newData
+          }
+        })
+      }
+    };
     onUpdateEvflData(newEvflData, `Add Default Params: ${actorName}`, 'Default create parameters');
   };
 
   // 删除参数
   const handleDeleteParam = (key: string) => {
     if (!selectedActor || selectedActorIdx === null) return;
-    const newEvflData = structuredClone(evflData);
-    delete newEvflData.flowchart.actors[selectedActorIdx].params.data[key];
+    const targetActor = evflData.flowchart.actors[selectedActorIdx];
+    const newData = { ...targetActor.params.data };
+    delete newData[key];
+
+    const newEvflData = {
+      ...evflData,
+      flowchart: {
+        ...evflData.flowchart,
+        actors: evflData.flowchart.actors.with(selectedActorIdx, {
+          ...targetActor,
+          params: {
+            ...targetActor.params,
+            data: newData
+          }
+        })
+      }
+    };
     onUpdateEvflData(
       newEvflData,
       `Delete Param: ${actorName}.${key}`,

@@ -52,11 +52,19 @@ export default function ActorDetailsPanel({
     const trimmed = newActionName.trim();
     if (!selectedActor || !trimmed || selectedActorIdx === null) return;
 
-    const newEvflData = structuredClone(evflData);
-    const targetActor = newEvflData.flowchart.actors[selectedActorIdx];
-    if (!targetActor.actions) targetActor.actions = [];
-    if (!targetActor.actions.includes(trimmed)) {
-      targetActor.actions.push(trimmed);
+    const targetActor = evflData.flowchart.actors[selectedActorIdx];
+    const currentActions = targetActor.actions || [];
+    if (!currentActions.includes(trimmed)) {
+      const newEvflData = {
+        ...evflData,
+        flowchart: {
+          ...evflData.flowchart,
+          actors: evflData.flowchart.actors.with(selectedActorIdx, {
+            ...targetActor,
+            actions: [...currentActions, trimmed]
+          })
+        }
+      };
       onUpdateEvflData(newEvflData, `Add Action: ${actorName}.${trimmed}`, 'New action definition');
     }
     setNewActionName('');
@@ -68,11 +76,19 @@ export default function ActorDetailsPanel({
     const trimmed = newQueryName.trim();
     if (!selectedActor || !trimmed || selectedActorIdx === null) return;
 
-    const newEvflData = structuredClone(evflData);
-    const targetActor = newEvflData.flowchart.actors[selectedActorIdx];
-    if (!targetActor.queries) targetActor.queries = [];
-    if (!targetActor.queries.includes(trimmed)) {
-      targetActor.queries.push(trimmed);
+    const targetActor = evflData.flowchart.actors[selectedActorIdx];
+    const currentQueries = targetActor.queries || [];
+    if (!currentQueries.includes(trimmed)) {
+      const newEvflData = {
+        ...evflData,
+        flowchart: {
+          ...evflData.flowchart,
+          actors: evflData.flowchart.actors.with(selectedActorIdx, {
+            ...targetActor,
+            queries: [...currentQueries, trimmed]
+          })
+        }
+      };
       onUpdateEvflData(newEvflData, `Add Query: ${actorName}.${trimmed}`, 'New query definition');
     }
     setNewQueryName('');
@@ -148,8 +164,17 @@ export default function ActorDetailsPanel({
                     style={{ padding: 2 }}
                     onClick={(e) => {
                       e.stopPropagation();
-                      const newEvflData = structuredClone(evflData);
-                      newEvflData.flowchart.actors[selectedActorIdx!].actions.splice(idx, 1);
+                      const targetActor = evflData.flowchart.actors[selectedActorIdx!];
+                      const newEvflData = {
+                        ...evflData,
+                        flowchart: {
+                          ...evflData.flowchart,
+                          actors: evflData.flowchart.actors.with(selectedActorIdx!, {
+                            ...targetActor,
+                            actions: targetActor.actions.toSpliced(idx, 1)
+                          })
+                        }
+                      };
                       onUpdateEvflData(
                         newEvflData,
                         `Delete Action: ${actorName}.${action}`,
@@ -237,8 +262,17 @@ export default function ActorDetailsPanel({
                     style={{ padding: 2 }}
                     onClick={(e) => {
                       e.stopPropagation();
-                      const newEvflData = structuredClone(evflData);
-                      newEvflData.flowchart.actors[selectedActorIdx!].queries.splice(idx, 1);
+                      const targetActor = evflData.flowchart.actors[selectedActorIdx!];
+                      const newEvflData = {
+                        ...evflData,
+                        flowchart: {
+                          ...evflData.flowchart,
+                          actors: evflData.flowchart.actors.with(selectedActorIdx!, {
+                            ...targetActor,
+                            queries: targetActor.queries.toSpliced(idx, 1)
+                          })
+                        }
+                      };
                       onUpdateEvflData(
                         newEvflData,
                         `Delete Query: ${actorName}.${query}`,

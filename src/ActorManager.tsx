@@ -34,10 +34,8 @@ export default function ActorManager({ evflData, onUpdateEvflData }: ActorManage
     const trimmed = newActorName.trim();
     if (!trimmed) return;
 
-    const newEvflData = structuredClone(evflData);
-    if (!newEvflData.flowchart.actors) newEvflData.flowchart.actors = [];
-
-    newEvflData.flowchart.actors.push({
+    const currentActors = evflData.flowchart.actors || [];
+    const newActor = {
       identifier: { name: trimmed, sub_name: newActorSubName.trim() },
       argument_name: '',
       argument_entry_point: { v: null, idx: 65535 },
@@ -45,7 +43,15 @@ export default function ActorManager({ evflData, onUpdateEvflData }: ActorManage
       queries: [],
       params: null,
       concurrent_clips: 65535,
-    });
+    };
+
+    const newEvflData = {
+      ...evflData,
+      flowchart: {
+        ...evflData.flowchart,
+        actors: [...currentActors, newActor]
+      }
+    };
 
     const subDetail = newActorSubName.trim()
       ? `Sub: ${newActorSubName.trim()}`
@@ -67,8 +73,13 @@ export default function ActorManager({ evflData, onUpdateEvflData }: ActorManage
         : `Are you sure you want to delete actor "${actorName}"? This may affect events referencing it.`;
     if (!confirm(confirmMsg)) return;
 
-    const newEvflData = structuredClone(evflData);
-    newEvflData.flowchart.actors.splice(idx, 1);
+    const newEvflData = {
+      ...evflData,
+      flowchart: {
+        ...evflData.flowchart,
+        actors: evflData.flowchart.actors.toSpliced(idx, 1)
+      }
+    };
     onUpdateEvflData(newEvflData, `Delete Actor: ${actorName}`, 'Remove actor definition');
 
     if (selectedActorIdx === idx) {
