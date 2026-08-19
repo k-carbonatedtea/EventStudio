@@ -148,7 +148,7 @@ pub fn reorder_event_parameters(
     mod_dir: Option<String>,
     custom_dump_dir: Option<String>,
 ) -> Result<serde_json::Value, String> {
-    let current_map = current_params.as_object().ok_or("Invalid params format")?;
+    let current_map = current_params.as_object().ok_or_else(|| "参数格式无效".to_string())?;
     let search_dirs = build_search_dirs(
         game_dir.as_deref(),
         update_dir.as_deref(),
@@ -197,7 +197,7 @@ pub fn reorder_event_parameters(
 #[tauri::command]
 pub fn export_actor_definitions_json(evfl_json: &str, export_path: &str) -> Result<(), String> {
     let evfl: EventFlow = serde_json::from_str(evfl_json).map_err(|e| e.to_string())?;
-    let fc = evfl.flowchart.ok_or("Flowchart is empty")?;
+    let fc = evfl.flowchart.ok_or_else(|| "流程图为空 (Flowchart is empty)".to_string())?;
 
     let mut defs_map: serde_json::Map<String, serde_json::Value> = serde_json::Map::new();
 
@@ -224,22 +224,38 @@ pub fn export_actor_definitions_json(evfl_json: &str, export_path: &str) -> Resu
     for event in &fc.events {
         let (actor_idx_opt, action_name_opt, is_query, params_opt) = match &event.data {
             revfl::event::EventData::Action(act_ev) => {
-                let a_idx = act_ev.actor.idx as usize;
-                let act_name = if act_ev.actor_action.idx != 0xFFFF {
-                    fc.actors.get(a_idx).and_then(|a| a.actions.get(act_ev.actor_action.idx as usize)).map(|s| s.0.clone())
+                let a_idx_opt = if act_ev.actor.idx != 0xFFFF {
+                    Some(act_ev.actor.idx as usize)
                 } else {
                     None
                 };
-                (if act_ev.actor.idx != 0xFFFF { Some(a_idx) } else { None }, act_name, false, act_ev.params.as_ref())
+                let act_name = if let Some(a_idx) = a_idx_opt {
+                    if act_ev.actor_action.idx != 0xFFFF {
+                        fc.actors.get(a_idx).and_then(|a| a.actions.get(act_ev.actor_action.idx as usize)).map(|s| s.0.clone())
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                };
+                (a_idx_opt, act_name, false, act_ev.params.as_ref())
             }
             revfl::event::EventData::Switch(sw_ev) => {
-                let a_idx = sw_ev.actor.idx as usize;
-                let q_name = if sw_ev.actor_query.idx != 0xFFFF {
-                    fc.actors.get(a_idx).and_then(|a| a.queries.get(sw_ev.actor_query.idx as usize)).map(|s| s.0.clone())
+                let a_idx_opt = if sw_ev.actor.idx != 0xFFFF {
+                    Some(sw_ev.actor.idx as usize)
                 } else {
                     None
                 };
-                (if sw_ev.actor.idx != 0xFFFF { Some(a_idx) } else { None }, q_name, true, sw_ev.params.as_ref())
+                let q_name = if let Some(a_idx) = a_idx_opt {
+                    if sw_ev.actor_query.idx != 0xFFFF {
+                        fc.actors.get(a_idx).and_then(|a| a.queries.get(sw_ev.actor_query.idx as usize)).map(|s| s.0.clone())
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                };
+                (a_idx_opt, q_name, true, sw_ev.params.as_ref())
             }
             _ => (None, None, false, None),
         };

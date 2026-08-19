@@ -169,7 +169,7 @@ fn load_file_history(app_handle: tauri::AppHandle, file_path: &str) -> Result<Op
     let valid_index = if timeline.current_index < loaded_steps.len() {
         timeline.current_index
     } else {
-        loaded_steps.len() - 1
+        loaded_steps.len().saturating_sub(1)
     };
 
     Ok(Some(LoadedHistoryResult {
@@ -286,19 +286,29 @@ fn load_sbeventpack(path: &str) -> Result<Vec<FileNode>, String> {
 #[tauri::command]
 fn load_evfl_from_pack(pack_path: &str, file_name: &str) -> Result<String, String> {
     let data = fs::read(pack_path).map_err(|e| e.to_string())?;
-    let sarc = Sarc::new(&data).map_err(|e| e.to_string())?;
+    let decompressed = roead::yaz0::decompress(&data).unwrap_or(data);
+    let sarc = Sarc::new(&decompressed).map_err(|e| e.to_string())?;
     
     let file_data = sarc.files()
         .find(|f| f.name() == Some(file_name))
         .map(|f| f.data().to_vec())
-        .ok_or_else(|| format!("File {} not found in pack", file_name))?;
+        .ok_or_else(|| format!("未在压缩包中找到文件 {}", file_name))?;
         
     if file_name.to_lowercase().ends_with(".json") {
         return String::from_utf8(file_data).map_err(|e| e.to_string());
     }
 
+    if file_data.len() < 8 || !file_data.starts_with(b"BFEVFL") {
+        return Err(format!("文件 {} 不是有效的 BFEVFL 格式", file_name));
+    }
+
     let mut evfl = EventFlow::new();
-    evfl.read(&file_data);
+    let res = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        evfl.read(&file_data);
+    }));
+    if res.is_err() {
+        return Err(format!("解析事件流文件 {} 时发生错误（数据可能已损坏）", file_name));
+    }
     serde_json::to_string(&evfl).map_err(|e| e.to_string())
 }
 
@@ -327,7 +337,9 @@ fn ensure_evfl_names(evfl: &mut EventFlow, fallback_path: &str) {
 fn save_evfl_to_pack(pack_path: &str, file_name: &str, json_data: &str) -> Result<(), String> {
     // 读取原始 SARC 包数据
     let data = fs::read(pack_path).map_err(|e| e.to_string())?;
-    let sarc = Sarc::new(&data).map_err(|e| e.to_string())?;
+    let is_yaz0_orig = data.starts_with(b"Yaz0");
+    let decompressed = roead::yaz0::decompress(&data).unwrap_or(data);
+    let sarc = Sarc::new(&decompressed).map_err(|e| e.to_string())?;
     let mut writer = SarcWriter::from_sarc(&sarc);
 
     // 序列化修改后的 EventFlow 节点数据
@@ -336,9 +348,12 @@ fn save_evfl_to_pack(pack_path: &str, file_name: &str, json_data: &str) -> Resul
     } else {
         let mut evfl: EventFlow = serde_json::from_str(json_data).map_err(|e| e.to_string())?;
         ensure_evfl_names(&mut evfl, file_name);
-        let mut out_cursor = Cursor::new(Vec::new());
-        evfl.write(&mut out_cursor);
-        out_cursor.into_inner()
+        let write_res = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            let mut out_cursor = Cursor::new(Vec::new());
+            evfl.write(&mut out_cursor);
+            out_cursor.into_inner()
+        }));
+        write_res.map_err(|_| "序列化 EventFlow 发生错误".to_string())?
     };
 
     // 更新压缩包中的目标文件
@@ -346,7 +361,7 @@ fn save_evfl_to_pack(pack_path: &str, file_name: &str, json_data: &str) -> Resul
     let sarc_data = writer.to_binary();
 
     // 如果原文件使用 Yaz0 压缩或文件名为 sbeventpack，则重新进行 Yaz0 压缩
-    let final_data = if data.starts_with(b"Yaz0") || pack_path.to_lowercase().ends_with(".sbeventpack") {
+    let final_data = if is_yaz0_orig || pack_path.to_lowercase().ends_with(".sbeventpack") {
         roead::yaz0::compress(&sarc_data)
     } else {
         sarc_data
@@ -651,6 +666,9 @@ fn read_dir_recursive(dir_path: &std::path::Path) -> Result<Vec<FileNode>, Strin
 fn read_file_from_path(path: &str) -> Result<Vec<u8>, String> {
     if path.starts_with("SARC:") {
         let parts: Vec<&str> = path.trim_start_matches("SARC:").split("//").collect();
+        if parts.is_empty() {
+            return Err("无效的 SARC 文件路径".to_string());
+        }
         let mut data = fs::read(parts[0]).map_err(|e| e.to_string())?;
         
         for i in 1..parts.len() {
@@ -668,7 +686,7 @@ fn read_file_from_path(path: &str) -> Result<Vec<u8>, String> {
                     }
                 })
                 .map(|f| f.data().to_vec())
-                .ok_or_else(|| format!("File {} not found in pack", inner_name))?;
+                .ok_or_else(|| format!("未在压缩包中找到文件 {}", inner_name))?;
         }
         Ok(data)
     } else {
@@ -704,7 +722,7 @@ fn repack_nested_sarc(pack_data: &[u8], pack_name: &str, inner_paths: &[&str], n
                 }
             })
             .map(|f| f.data().to_vec())
-            .ok_or_else(|| format!("Nested pack {} not found in SARC", inner_norm))?;
+            .ok_or_else(|| format!("嵌套压缩包 {} 未在 SARC 中找到", inner_norm))?;
             
         let modified_inner_data = repack_nested_sarc(&current_inner_data, inner_norm, &inner_paths[1..], new_data)?;
         writer.files.retain(|k, _| k.replace('\\', "/") != inner_name);
@@ -727,9 +745,13 @@ fn repack_nested_sarc(pack_data: &[u8], pack_name: &str, inner_paths: &[&str], n
 fn write_file_to_path(path: &str, new_data: &[u8]) -> Result<(), String> {
     if path.starts_with("SARC:") {
         let parts: Vec<&str> = path.trim_start_matches("SARC:").split("//").collect();
+        if parts.is_empty() {
+            return Err("无效的 SARC 文件路径".to_string());
+        }
         let physical_data = fs::read(parts[0]).map_err(|e| e.to_string())?;
         let physical_name = parts[0].split('/').last().unwrap_or(parts[0]).split('\\').last().unwrap_or(parts[0]);
-        let final_data = repack_nested_sarc(&physical_data, physical_name, &parts[1..], new_data)?;
+        let inner_paths = if parts.len() > 1 { &parts[1..] } else { &[] };
+        let final_data = repack_nested_sarc(&physical_data, physical_name, inner_paths, new_data)?;
         fs::write(parts[0], final_data).map_err(|e| e.to_string())
     } else {
         fs::write(path, new_data).map_err(|e| e.to_string())
@@ -739,7 +761,7 @@ fn write_file_to_path(path: &str, new_data: &[u8]) -> Result<(), String> {
 // 从嵌套 SARC 压缩包中递归删除指定文件
 fn delete_file_from_sarc(pack_data: &[u8], pack_name: &str, inner_paths: &[&str]) -> Result<Vec<u8>, String> {
     if inner_paths.is_empty() {
-        return Err("Cannot delete root pack".to_string());
+        return Err("无法删除根压缩包".to_string());
     }
     
     let is_yaz0 = pack_data.starts_with(b"Yaz0");
@@ -762,7 +784,7 @@ fn delete_file_from_sarc(pack_data: &[u8], pack_name: &str, inner_paths: &[&str]
                 }
             })
             .map(|f| f.data().to_vec())
-            .ok_or_else(|| format!("File {} not found in pack", inner_norm))?;
+            .ok_or_else(|| format!("未在压缩包中找到文件 {}", inner_norm))?;
             
         let modified_inner_data = delete_file_from_sarc(&current_inner_data, inner_norm, &inner_paths[1..])?;
         writer.files.retain(|k, _| k.replace('\\', "/") != inner_name);
@@ -800,9 +822,12 @@ fn create_bfevfl_file(dir_or_pack_path: &str, file_name: &str) -> Result<String,
     fc.name = base_name.to_string();
     evfl.flowchart = Some(fc);
     
-    let mut out_cursor = Cursor::new(Vec::new());
-    evfl.write(&mut out_cursor);
-    let out_data = out_cursor.into_inner();
+    let write_res = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        let mut out_cursor = Cursor::new(Vec::new());
+        evfl.write(&mut out_cursor);
+        out_cursor.into_inner()
+    }));
+    let out_data = write_res.map_err(|_| "初始化 BFEVFL 数据失败".to_string())?;
     
     let is_sarc_path = dir_or_pack_path.starts_with("SARC:") || {
         let p_lower = dir_or_pack_path.to_lowercase();
@@ -814,19 +839,22 @@ fn create_bfevfl_file(dir_or_pack_path: &str, file_name: &str) -> Result<String,
             let without_prefix = dir_or_pack_path.trim_start_matches("SARC:");
             if without_prefix.contains("//") {
                 let parts: Vec<&str> = without_prefix.split("//").collect();
-                let last_part = parts[parts.len() - 1];
-                let is_file = last_part.contains('.') && !last_part.ends_with(".sarc") && !last_part.ends_with(".pack");
-                if is_file {
-                    if last_part.contains('/') {
-                        let (parent_dir, _) = last_part.rsplit_once('/').unwrap();
-                        format!("SARC:{}//{}/{}", parts[0..parts.len()-1].join("//"), parent_dir, clean_name)
+                if let Some(&last_part) = parts.last() {
+                    let is_file = last_part.contains('.') && !last_part.ends_with(".sarc") && !last_part.ends_with(".pack");
+                    let prefix = parts[..parts.len().saturating_sub(1)].join("//");
+                    if is_file {
+                        if let Some((parent_dir, _)) = last_part.rsplit_once('/') {
+                            format!("SARC:{}//{}/{}", prefix, parent_dir, clean_name)
+                        } else {
+                            format!("SARC:{}//{}", prefix, clean_name)
+                        }
+                    } else if dir_or_pack_path.ends_with('/') || dir_or_pack_path.ends_with('\\') {
+                        format!("{}{}", dir_or_pack_path, clean_name)
                     } else {
-                        format!("SARC:{}//{}", parts[0..parts.len()-1].join("//"), clean_name)
+                        format!("{}/{}", dir_or_pack_path, clean_name)
                     }
-                } else if dir_or_pack_path.ends_with('/') || dir_or_pack_path.ends_with('\\') {
-                    format!("{}{}", dir_or_pack_path, clean_name)
                 } else {
-                    format!("{}/{}", dir_or_pack_path, clean_name)
+                    format!("SARC:{}//{}", without_prefix, clean_name)
                 }
             } else {
                 let pack_path = without_prefix;
@@ -865,9 +893,13 @@ fn create_bfevfl_file(dir_or_pack_path: &str, file_name: &str) -> Result<String,
 fn delete_file_by_path(path: &str) -> Result<(), String> {
     if path.starts_with("SARC:") {
         let parts: Vec<&str> = path.trim_start_matches("SARC:").split("//").collect();
+        if parts.is_empty() {
+            return Err("无效的 SARC 文件路径".to_string());
+        }
         let physical_data = fs::read(parts[0]).map_err(|e| e.to_string())?;
         let physical_name = parts[0].split('/').last().unwrap_or(parts[0]).split('\\').last().unwrap_or(parts[0]);
-        let final_data = delete_file_from_sarc(&physical_data, physical_name, &parts[1..])?;
+        let inner_paths = if parts.len() > 1 { &parts[1..] } else { &[] };
+        let final_data = delete_file_from_sarc(&physical_data, physical_name, inner_paths)?;
         fs::write(parts[0], final_data).map_err(|e| e.to_string())
     } else {
         let p = std::path::Path::new(path);
@@ -884,20 +916,26 @@ fn delete_file_by_path(path: &str) -> Result<(), String> {
 fn rename_file_by_path(old_path: &str, new_name: &str) -> Result<String, String> {
     if old_path.starts_with("SARC:") {
         let parts: Vec<&str> = old_path.trim_start_matches("SARC:").split("//").collect();
+        if parts.is_empty() {
+            return Err("无效的 SARC 路径".to_string());
+        }
         let mut file_data = read_file_from_path(old_path)?;
         
         let physical_path = parts[0];
         let physical_data = fs::read(physical_path).map_err(|e| e.to_string())?;
         let physical_name = physical_path.split('/').last().unwrap_or(physical_path).split('\\').last().unwrap_or(physical_path);
         
+        let inner_paths = if parts.len() > 1 { &parts[1..] } else { &[] };
         // 从 SARC 中移除原文件条目
-        let intermediate_data = delete_file_from_sarc(&physical_data, physical_name, &parts[1..])?;
+        let intermediate_data = delete_file_from_sarc(&physical_data, physical_name, inner_paths)?;
         
         // 构造新条目的内嵌路径
         let mut new_parts: Vec<String> = parts.iter().map(|s| s.to_string()).collect();
-        let last_idx = new_parts.len() - 1;
-        let parent_inner = if new_parts[last_idx].contains('/') {
-            let (parent, _) = new_parts[last_idx].rsplit_once('/').unwrap();
+        if new_parts.is_empty() {
+            return Err("SARC 路径分段为空".to_string());
+        }
+        let last_idx = new_parts.len().saturating_sub(1);
+        let parent_inner = if let Some((parent, _)) = new_parts[last_idx].rsplit_once('/') {
             format!("{}/", parent)
         } else {
             "".to_string()
@@ -926,14 +964,21 @@ fn rename_file_by_path(old_path: &str, new_name: &str) -> Result<String, String>
                     fc.name = new_base.to_string();
                 }
                 let mut cur = Cursor::new(Vec::new());
-                evfl.write(&mut cur);
-                file_data = cur.into_inner();
+                if std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                    evfl.write(&mut cur);
+                })).is_ok() {
+                    file_data = cur.into_inner();
+                }
             }
         }
         
         new_parts[last_idx] = format!("{}{}", parent_inner, clean_new_name);
         
-        let new_inner_paths: Vec<&str> = new_parts[1..].iter().map(|s| s.as_str()).collect();
+        let new_inner_paths: Vec<&str> = if new_parts.len() > 1 {
+            new_parts[1..].iter().map(|s| s.as_str()).collect()
+        } else {
+            Vec::new()
+        };
         let final_data = repack_nested_sarc(&intermediate_data, physical_name, &new_inner_paths, &file_data)?;
         
         fs::write(physical_path, final_data).map_err(|e| e.to_string())?;
@@ -942,7 +987,7 @@ fn rename_file_by_path(old_path: &str, new_name: &str) -> Result<String, String>
         Ok(new_virtual_path)
     } else {
         let p = std::path::Path::new(old_path);
-        let parent = p.parent().ok_or("Cannot get parent directory")?;
+        let parent = p.parent().ok_or_else(|| "无法获取父级目录".to_string())?;
         let clean_new_name = if !new_name.contains('.') {
             let old_ext = old_path.split('.').last().unwrap_or("");
             if !old_ext.is_empty() {
@@ -968,8 +1013,11 @@ fn rename_file_by_path(old_path: &str, new_name: &str) -> Result<String, String>
                         fc.name = new_base.to_string();
                     }
                     let mut cur = Cursor::new(Vec::new());
-                    evfl.write(&mut cur);
-                    let _ = fs::write(p, cur.into_inner());
+                    if std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                        evfl.write(&mut cur);
+                    })).is_ok() {
+                        let _ = fs::write(p, cur.into_inner());
+                    }
                 }
             }
         }
@@ -1013,18 +1061,18 @@ fn load_evfl(path: &str) -> Result<String, String> {
     }
     
     // Safety check to prevent panics in evfl.read
-    if data.len() < 8 || &data[0..6] != b"BFEVFL" {
-        return Err("Not a valid BFEVFL file".to_string());
+    if data.len() < 8 || !data.starts_with(b"BFEVFL") {
+        return Err("不是有效的 BFEVFL 格式文件".to_string());
     }
     
-    // We can also use catch_unwind as a last resort safeguard against panics in EventFlow::read
+    // 捕获可能在解析损坏 BFEVFL 二进制时发生的底层 Panic
     let mut evfl = EventFlow::new();
     let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
         evfl.read(&data);
     }));
     
     if result.is_err() {
-        return Err("Crash occurred while parsing BFEVFL file".to_string());
+        return Err("解析 BFEVFL 事件流发生异常（数据可能已损坏）".to_string());
     }
     
     serde_json::to_string(&evfl).map_err(|e| e.to_string())
@@ -1038,9 +1086,12 @@ fn save_evfl(path: &str, json_data: &str) -> Result<(), String> {
     
     let mut evfl: EventFlow = serde_json::from_str(json_data).map_err(|e| e.to_string())?;
     ensure_evfl_names(&mut evfl, path);
-    let mut out_cursor = Cursor::new(Vec::new());
-    evfl.write(&mut out_cursor);
-    let out_data = out_cursor.into_inner();
+    let write_res = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        let mut out_cursor = Cursor::new(Vec::new());
+        evfl.write(&mut out_cursor);
+        out_cursor.into_inner()
+    }));
+    let out_data = write_res.map_err(|_| "序列化 EventFlow 发生错误".to_string())?;
     
     write_file_to_path(path, &out_data)
 }
@@ -1065,13 +1116,13 @@ fn load_yaml(path: &str) -> Result<serde_json::Value, String> {
     let data = read_file_from_path(path)?;
     let data = roead::yaz0::decompress(&data).unwrap_or(data);
     if data.len() >= 4 && &data[0..4] == b"AAMP" {
-        let pio = roead::aamp::ParameterIO::from_binary(&*data).map_err(|e| e.to_string())?;
+        let pio = roead::aamp::ParameterIO::from_binary(&data).map_err(|e| e.to_string())?;
         Ok(serde_json::json!({
             "yaml": pio.to_text(),
             "type": "aamp",
             "be": false
         }))
-    } else if data.len() >= 2 && [b"BY", b"YB"].contains(&&data[0..2].try_into().unwrap()) {
+    } else if data.len() >= 2 && (&data[0..2] == b"BY" || &data[0..2] == b"YB") {
         let byml = roead::byml::Byml::from_binary(&data).map_err(|e| e.to_string())?;
         Ok(serde_json::json!({
             "yaml": byml.to_text(),
@@ -1079,7 +1130,7 @@ fn load_yaml(path: &str) -> Result<serde_json::Value, String> {
             "be": &data[0..2] == b"BY"
         }))
     } else {
-        Err("Unsupported YAML binary format".to_string())
+        Err("不支持的 YAML 二进制格式".to_string())
     }
 }
 

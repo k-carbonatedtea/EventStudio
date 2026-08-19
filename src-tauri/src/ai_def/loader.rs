@@ -18,12 +18,10 @@ impl AiCacheManager {
     }
 
     pub fn clear(&self) {
-        if let Ok(mut g) = self.ai_defs.write() {
-            *g = None;
-        }
-        if let Ok(mut g) = self.actor_progs.write() {
-            g.clear();
-        }
+        let mut g = self.ai_defs.write().unwrap_or_else(|p| p.into_inner());
+        *g = None;
+        let mut p = self.actor_progs.write().unwrap_or_else(|p| p.into_inner());
+        p.clear();
     }
 }
 
@@ -106,7 +104,7 @@ pub fn get_search_directories(
 pub fn load_global_ai_defs(search_dirs: &[PathBuf]) -> Result<AiDefs, String> {
     let cache = AiCacheManager::global();
     {
-        let read_guard = cache.ai_defs.read().map_err(|e| e.to_string())?;
+        let read_guard = cache.ai_defs.read().unwrap_or_else(|p| p.into_inner());
         if let Some(defs) = &*read_guard {
             return Ok(defs.clone());
         }
@@ -134,7 +132,7 @@ pub fn load_global_ai_defs(search_dirs: &[PathBuf]) -> Result<AiDefs, String> {
                         if let Ok(bytes) = std::fs::read(&full_path) {
                             if let Ok(defs) = parse_ai_defs(&bytes) {
                                 if !defs.actions.is_empty() {
-                                    let mut write_guard = cache.ai_defs.write().map_err(|e| e.to_string())?;
+                                    let mut write_guard = cache.ai_defs.write().unwrap_or_else(|p| p.into_inner());
                                     *write_guard = Some(defs.clone());
                                     return Ok(defs);
                                 }
@@ -149,7 +147,7 @@ pub fn load_global_ai_defs(search_dirs: &[PathBuf]) -> Result<AiDefs, String> {
                                 }) {
                                     if let Ok(defs) = parse_ai_defs(file.data()) {
                                         if !defs.actions.is_empty() {
-                                            let mut write_guard = cache.ai_defs.write().map_err(|e| e.to_string())?;
+                                            let mut write_guard = cache.ai_defs.write().unwrap_or_else(|p| p.into_inner());
                                             *write_guard = Some(defs.clone());
                                             return Ok(defs);
                                         }
@@ -170,7 +168,7 @@ pub fn load_global_ai_defs(search_dirs: &[PathBuf]) -> Result<AiDefs, String> {
 pub fn load_actor_aiprog(actor_name: &str, search_dirs: &[PathBuf]) -> Result<ActorAiProg, String> {
     let cache = AiCacheManager::global();
     {
-        let read_guard = cache.actor_progs.read().map_err(|e| e.to_string())?;
+        let read_guard = cache.actor_progs.read().unwrap_or_else(|p| p.into_inner());
         if let Some(prog) = read_guard.get(actor_name) {
             return Ok(prog.clone());
         }
@@ -194,7 +192,7 @@ pub fn load_actor_aiprog(actor_name: &str, search_dirs: &[PathBuf]) -> Result<Ac
             }
         }
         if !prog.actions.is_empty() || !prog.queries.is_empty() {
-            let mut write_guard = cache.actor_progs.write().map_err(|e| e.to_string())?;
+            let mut write_guard = cache.actor_progs.write().unwrap_or_else(|p| p.into_inner());
             write_guard.insert(actor_name.to_string(), prog.clone());
             return Ok(prog);
         }
@@ -223,7 +221,7 @@ pub fn load_actor_aiprog(actor_name: &str, search_dirs: &[PathBuf]) -> Result<Ac
                 }
             }
             if !prog.actions.is_empty() || !prog.queries.is_empty() {
-                let mut write_guard = cache.actor_progs.write().map_err(|e| e.to_string())?;
+                let mut write_guard = cache.actor_progs.write().unwrap_or_else(|p| p.into_inner());
                 write_guard.insert(actor_name.to_string(), prog.clone());
                 return Ok(prog);
             }
@@ -255,7 +253,7 @@ pub fn load_actor_aiprog(actor_name: &str, search_dirs: &[PathBuf]) -> Result<Ac
                     }
                 }
                 if !prog.actions.is_empty() || !prog.queries.is_empty() {
-                    let mut write_guard = cache.actor_progs.write().map_err(|e| e.to_string())?;
+                    let mut write_guard = cache.actor_progs.write().unwrap_or_else(|p| p.into_inner());
                     write_guard.insert(actor_name.to_string(), prog.clone());
                     return Ok(prog);
                 }
@@ -264,7 +262,7 @@ pub fn load_actor_aiprog(actor_name: &str, search_dirs: &[PathBuf]) -> Result<Ac
     }
 
     if !prog.actions.is_empty() || !prog.queries.is_empty() {
-        let mut write_guard = cache.actor_progs.write().map_err(|e| e.to_string())?;
+        let mut write_guard = cache.actor_progs.write().unwrap_or_else(|p| p.into_inner());
         write_guard.insert(actor_name.to_string(), prog.clone());
         Ok(prog)
     } else {

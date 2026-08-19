@@ -3,7 +3,7 @@ use std::path::{Path, PathBuf};
 
 // 解析 MSBT 二进制字节数据
 pub fn parse_msbt_bytes(data: &[u8]) -> Result<HashMap<String, String>, String> {
-    if data.len() < 32 || &data[0..8] != b"MsgStdBn" {
+    if data.len() < 32 || !data.starts_with(b"MsgStdBn") {
         return Err("Invalid MSBT header".to_string());
     }
 
@@ -20,20 +20,26 @@ pub fn parse_msbt_bytes(data: &[u8]) -> Result<HashMap<String, String>, String> 
     let mut txt2_payload: Option<&[u8]> = None;
 
     for _ in 0..section_count {
-        if offset + 16 > data.len() {
+        if offset.checked_add(16).map_or(true, |end| end > data.len()) {
             break;
         }
-        let magic = &data[offset..offset + 4];
+        let magic = match data.get(offset..offset + 4) {
+            Some(m) => m,
+            None => break,
+        };
         let size = if is_big_endian {
             u32::from_be_bytes([data[offset + 4], data[offset + 5], data[offset + 6], data[offset + 7]]) as usize
         } else {
             u32::from_le_bytes([data[offset + 4], data[offset + 5], data[offset + 6], data[offset + 7]]) as usize
         };
-        let payload_start = offset + 16;
-        let payload_end = payload_start + size;
-        if payload_end > data.len() {
-            break;
-        }
+        let payload_start = match offset.checked_add(16) {
+            Some(start) => start,
+            None => break,
+        };
+        let payload_end = match payload_start.checked_add(size) {
+            Some(end) if end <= data.len() => end,
+            _ => break,
+        };
 
         if magic == b"LBL1" {
             lbl1_payload = Some(&data[payload_start..payload_end]);
@@ -42,11 +48,14 @@ pub fn parse_msbt_bytes(data: &[u8]) -> Result<HashMap<String, String>, String> 
         }
 
         // 对齐到 16 字节
-        offset = (payload_end + 15) & !15;
+        offset = match payload_end.checked_add(15) {
+            Some(aligned) => aligned & !15,
+            None => break,
+        };
     }
 
-    let lbl1 = lbl1_payload.ok_or("Missing LBL1 section")?;
-    let txt2 = txt2_payload.ok_or("Missing TXT2 section")?;
+    let lbl1 = lbl1_payload.ok_or_else(|| "Missing LBL1 section".to_string())?;
+    let txt2 = txt2_payload.ok_or_else(|| "Missing TXT2 section".to_string())?;
 
     // 解析 TXT2 (文本偏移列表)
     if txt2.len() < 4 {
@@ -58,10 +67,16 @@ pub fn parse_msbt_bytes(data: &[u8]) -> Result<HashMap<String, String>, String> 
         u32::from_le_bytes([txt2[0], txt2[1], txt2[2], txt2[3]]) as usize
     };
 
-    let mut text_offsets = Vec::with_capacity(num_strings);
+    let mut text_offsets = Vec::with_capacity(num_strings.min(txt2.len() / 4));
     for i in 0..num_strings {
-        let pos = 4 + i * 4;
-        if pos + 4 > txt2.len() {
+        let pos = match 4usize.checked_add(match i.checked_mul(4) {
+            Some(m) => m,
+            None => break,
+        }) {
+            Some(p) => p,
+            None => break,
+        };
+        if pos.checked_add(4).map_or(true, |end| end > txt2.len()) {
             break;
         }
         let off = if is_big_endian {
@@ -106,7 +121,10 @@ pub fn parse_msbt_bytes(data: &[u8]) -> Result<HashMap<String, String>, String> 
                         } else {
                             u16::from_le_bytes([raw[idx + 6], raw[idx + 7]]) as usize
                         };
-                        idx += 8 + param_len;
+                        idx = match idx.checked_add(8).and_then(|v| v.checked_add(param_len)) {
+                            Some(next_idx) => next_idx,
+                            None => break,
+                        };
                         continue;
                     }
                 }
@@ -130,8 +148,14 @@ pub fn parse_msbt_bytes(data: &[u8]) -> Result<HashMap<String, String>, String> 
     let mut result = HashMap::new();
 
     for g in 0..num_groups {
-        let gpos = 4 + g * 8;
-        if gpos + 8 > lbl1.len() {
+        let gpos = match 4usize.checked_add(match g.checked_mul(8) {
+            Some(m) => m,
+            None => break,
+        }) {
+            Some(p) => p,
+            None => break,
+        };
+        if gpos.checked_add(8).map_or(true, |end| end > lbl1.len()) {
             break;
         }
         let label_count = if is_big_endian {
@@ -152,7 +176,7 @@ pub fn parse_msbt_bytes(data: &[u8]) -> Result<HashMap<String, String>, String> 
             }
             let len = lbl1[cur] as usize;
             cur += 1;
-            if cur + len + 4 > lbl1.len() {
+            if cur.checked_add(len).and_then(|v| v.checked_add(4)).map_or(true, |end| end > lbl1.len()) {
                 break;
             }
             let name = String::from_utf8_lossy(&lbl1[cur..cur + len]).to_string();
@@ -222,10 +246,15 @@ fn extract_from_loose_msbt(msbt_path: &Path, dict: &mut HashMap<String, String>)
     if let Ok(entries) = parse_msbt_bytes(&data) {
         let path_str = msbt_path.to_string_lossy().replace('\\', "/");
         let file_stem = msbt_path.file_stem().and_then(|s| s.to_str()).unwrap_or("");
-        let clean_name = if let Some(idx) = path_str.rfind("EventFlowMsg/") {
-            &path_str[idx..path_str.len() - 5]
-        } else if let Some(idx) = path_str.rfind("Message/") {
-            &path_str[idx..path_str.len() - 5]
+        let path_without_ext = if let Some(stripped) = path_str.strip_suffix(".msbt").or_else(|| path_str.strip_suffix(".MSBT")) {
+            stripped
+        } else {
+            &path_str
+        };
+        let clean_name = if let Some(idx) = path_without_ext.rfind("EventFlowMsg/") {
+            &path_without_ext[idx..]
+        } else if let Some(idx) = path_without_ext.rfind("Message/") {
+            &path_without_ext[idx..]
         } else {
             file_stem
         };

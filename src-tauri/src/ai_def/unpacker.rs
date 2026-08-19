@@ -145,9 +145,8 @@ pub fn unpack_game_ai(
     for (name, prog, count) in loose_results {
         total_baiprogs += count;
         total_actors += 1;
-        if let Ok(mut map) = actor_prog_map.lock() {
-            map.insert(name, prog);
-        }
+        let mut map = actor_prog_map.lock().unwrap_or_else(|p| p.into_inner());
+        map.insert(name, prog);
     }
 
     // 3. 收集所有 Pack/*.pack 路径
@@ -194,16 +193,16 @@ pub fn unpack_game_ai(
         for (name, prog, count) in list {
             total_baiprogs += count;
             total_actors += 1;
-            if let Ok(mut map) = actor_prog_map.lock() {
-                map.insert(name, prog);
-            }
+            let mut map = actor_prog_map.lock().unwrap_or_else(|p| p.into_inner());
+            map.insert(name, prog);
         }
     }
 
     // 4. 生成统一整合的 actor_definitions.json
     let json_path = target_output_dir.join("actor_definitions.json");
     let mut export_json = serde_json::Map::new();
-    if let Ok(map) = actor_prog_map.lock() {
+    {
+        let map = actor_prog_map.lock().unwrap_or_else(|p| p.into_inner());
         for (actor_name, prog) in map.iter() {
             let mut actor_obj = serde_json::Map::new();
             let mut actions_obj = serde_json::Map::new();
