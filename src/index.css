@@ -1,5 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
+/* 全局样式表引入 */
 @import './styles/base.css';
 @import './styles/layout.css';
 @import './styles/nodes.css';

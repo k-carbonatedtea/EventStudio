@@ -26,7 +26,7 @@
   min-height: 300px;
   max-width: 95vw;
   max-height: 95vh;
-  font-family: 'Segoe UI', 'Inter', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: inherit;
   display: flex;
   flex-direction: column;
 }
