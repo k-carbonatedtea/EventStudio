@@ -1,17 +1,23 @@
-name: Release App
+name: Dev Build
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
   workflow_dispatch:
 
 jobs:
-  build-and-release:
+  build-dev:
+    name: Build Dev (Windows)
     runs-on: windows-latest
 
     permissions:
-      contents: write
+      contents: read
 
     steps:
       # 1. 检出源码
@@ -42,14 +48,16 @@ jobs:
       - name: Install Frontend Dependencies
         run: npm ci
 
-      # 6. 构建 Tauri 应用并自动发布 GitHub Release
-      - name: Build Tauri App & Publish Release
-        uses: tauri-apps/tauri-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # 6. 构建 Tauri 开发版应用
+      - name: Build Tauri App
+        run: npm run tauri build
+
+      # 7. 上传 Dev 构建产物（可从 Actions 页面直接下载测试包）
+      - name: Upload Dev Artifacts
+        uses: actions/upload-artifact@v4
         with:
-          tagName: ${{ github.ref_name }}
-          releaseName: 'Event Studio ${{ github.ref_name }}'
-          releaseBody: 'Release ${{ github.ref_name }} - Automated build by GitHub Actions.'
-          releaseDraft: false
-          prerelease: false
+          name: EventStudio-Dev-Win64
+          path: |
+            src-tauri/target/release/event-studio.exe
+            src-tauri/target/release/bundle/msi/*.msi
+          retention-days: 14
