@@ -201,7 +201,7 @@ export const addEntryPoint = (evflData: any, nodeId: string) => {
 export const removeEntryPoint = (evflData: any, nodeId: string) => {
   const newEvflData = structuredClone(evflData);
   const epIndex = parseInt(nodeId.replace('ep-', ''));
-  newEvflData.flowchart.entry_points.splice(epIndex, 1);
+  newEvflData.flowchart.entry_points = newEvflData.flowchart.entry_points.toSpliced(epIndex, 1);
   return newEvflData;
 };
 
@@ -349,7 +349,7 @@ export const removeEvent = (evflData: any, deletedIdxStr: string) => {
   }
 
   // 从数组中删除
-  newEvflData.flowchart.events.splice(deletedIdx, 1);
+  newEvflData.flowchart.events = newEvflData.flowchart.events.toSpliced(deletedIdx, 1);
 
   // 更新剩余节点的指向
   newEvflData.flowchart.events.forEach((ev: any) => {

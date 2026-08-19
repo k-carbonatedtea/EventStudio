@@ -243,7 +243,7 @@ export function useEvflData(onFileOpened?: (path: string, isMod?: boolean) => vo
   // 删除指定历史步骤
   const deleteHistoryStep = async (index: number) => {
     if (history.length <= 1 || index < 0 || index >= history.length) return;
-    const newHistory = history.filter((_, i) => i !== index);
+    const newHistory = history.toSpliced(index, 1);
     const newIndex =
       index === historyIndex
         ? Math.max(0, index - 1)
