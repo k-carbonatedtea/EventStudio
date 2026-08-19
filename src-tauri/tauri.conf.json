@@ -23,7 +23,11 @@
   },
   "bundle": {
     "active": true,
-    "targets": "all",
+    "targets": ["msi"],
+    "copyright": "Copyright © 2026 EventStudio Team. Licensed under GPL-2.0.",
+    "publisher": "EventStudio Team",
+    "shortDescription": "Nintendo BFEVFL Flowchart Editor",
+    "longDescription": "A visual flowchart editor for Nintendo event flow (BFEVFL) files",
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",

@@ -2,7 +2,7 @@
 name = "event-studio"
 version = "1.0.2"
 description = "A visual flowchart editor for Nintendo event flow (BFEVFL) files"
-authors = ["you"]
+authors = ["EventStudio Team"]
 edition = "2021"
 license = "GPL-2.0"
 
@@ -28,3 +28,12 @@ revfl = { path = "../../Revfl" }
 roead = { version = "1.0.0", features = ["yaml"] }
 msyt = { git = "https://github.com/NiceneNerd/msyt", tag = "v1.3.0" }
 rayon = "1.10"
+
+# 发布构建优化：启用全局 LTO、单个代码生成单元与极端体积优化
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+
