@@ -459,19 +459,8 @@ fn open_settings_dir(app_handle: tauri::AppHandle) -> Result<(), String> {
     let docs_dir = app_handle.path().document_dir().map_err(|e| e.to_string())?;
     let settings_dir = docs_dir.join("EventEditor");
     std::fs::create_dir_all(&settings_dir).map_err(|e| e.to_string())?;
-    #[cfg(target_os = "windows")]
-    {
-        std::process::Command::new("explorer")
-            .arg(&settings_dir)
-            .spawn()
-            .map_err(|e| e.to_string())?;
-    }
-    #[cfg(not(target_os = "windows"))]
-    {
-        tauri_plugin_opener::open_path(settings_dir.to_str().unwrap_or_default(), None::<&str>)
-            .map_err(|e| e.to_string())?;
-    }
-    Ok(())
+    tauri_plugin_opener::open_path(settings_dir.to_str().unwrap_or_default(), None::<&str>)
+        .map_err(|e| e.to_string())
 }
 
 #[tauri::command]
@@ -481,42 +470,13 @@ fn open_path_in_explorer(path: &str) -> Result<(), String> {
     if !p.exists() {
         return Err("路径不存在".to_string());
     }
-    #[cfg(target_os = "windows")]
-    {
-        if p.is_file() {
-            std::process::Command::new("explorer")
-                .arg(format!("/select,{}", path))
-                .spawn()
-                .map_err(|e| e.to_string())?;
-        } else {
-            std::process::Command::new("explorer")
-                .arg(path)
-                .spawn()
-                .map_err(|e| e.to_string())?;
-        }
-    }
-    #[cfg(not(target_os = "windows"))]
-    {
-        tauri_plugin_opener::open_path(path, None::<&str>)
-            .map_err(|e| e.to_string())?;
-    }
-    Ok(())
+    tauri_plugin_opener::reveal_item_in_dir(path).map_err(|e| e.to_string())
 }
 
 #[tauri::command]
 fn open_external_url(url: &str) -> Result<(), String> {
-    // 在系统默认浏览器中打开外部链接
-    #[cfg(target_os = "windows")]
-    {
-        std::process::Command::new("cmd")
-            .args(["/c", "start", "", url])
-            .spawn()
-            .map_err(|e| e.to_string())?;
-    }
-    #[cfg(not(target_os = "windows"))]
-    {
-        let _ = tauri_plugin_opener::open_url(url, None::<&str>);
-    }
+    // 在系统默认浏览器中安全打开外部链接（通过 Win32 ShellExecute，不生成 cmd.exe 进程）
+    let _ = tauri_plugin_opener::open_url(url, None::<&str>);
     Ok(())
 }
 
