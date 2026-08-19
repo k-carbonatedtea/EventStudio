@@ -1,5 +1,6 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { invoke } from '@tauri-apps/api/core';
+import { save } from '@tauri-apps/plugin-dialog';
 import FlowMap from './FlowMap';
 import MenuBar from './components/MenuBar';
 import EmptyStateGuide from './components/EmptyStateGuide';
@@ -301,7 +302,6 @@ function App() {
   const handleExportActorDefs = async () => {
     if (!evflData) return;
     try {
-      const { save } = await import('@tauri-apps/plugin-dialog');
       const selectedPath = await save({
         filters: [{ name: 'JSON Definitions', extensions: ['json'] }],
         defaultPath: 'actor_definitions.json',
