@@ -14,51 +14,40 @@ jobs:
       contents: write
 
     steps:
-      # 1. 检出 EventStudio 主仓库源码至 ./EventStudio 目录
-      - name: Checkout EventStudio
+      # 1. 检出源码
+      - name: Checkout Source Code
         uses: actions/checkout@v4
-        with:
-          path: EventStudio
 
-      # 2. 检出同级的 Revfl 依赖仓库源码至 ./Revfl 目录（满足 Cargo.toml 中 ../../Revfl 路径）
-      - name: Checkout Revfl Dependency
-        uses: actions/checkout@v4
-        with:
-          repository: k-carbonatedtea/Revfl
-          path: Revfl
-
-      # 3. 配置 Node.js 运行环境
+      # 2. 配置 Node.js 运行环境 (Node 22 LTS)
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'npm'
-          cache-dependency-path: EventStudio/package-lock.json
+          cache-dependency-path: package-lock.json
 
-      # 4. 配置 Rust 稳定版工具链
+      # 3. 配置 Rust 稳定版工具链
       - name: Setup Rust Stable
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: x86_64-pc-windows-msvc
 
-      # 5. 启用 Rust 构建缓存（加快后续构建速度）
+      # 4. 启用 Rust 构建缓存（加快后续构建速度）
       - name: Rust Cache
         uses: swatinem/rust-cache@v2
         with:
-          workspaces: EventStudio/src-tauri
+          workspaces: src-tauri
 
-      # 6. 安装前端依赖
+      # 5. 安装前端依赖
       - name: Install Frontend Dependencies
-        working-directory: EventStudio
         run: npm ci
 
-      # 7. 构建 Tauri 应用并自动发布 GitHub Release
+      # 6. 构建 Tauri 应用并自动发布 GitHub Release
       - name: Build Tauri App & Publish Release
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          projectPath: EventStudio
           tagName: ${{ github.ref_name }}
           releaseName: 'Event Studio ${{ github.ref_name }}'
           releaseBody: 'Release ${{ github.ref_name }} - Automated build by GitHub Actions.'
