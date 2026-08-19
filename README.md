@@ -169,7 +169,7 @@ Powered by a **Rust (Revfl/Tauri)** backend and a modern **React + TypeScript** 
 ## 🛠️ Development & Build / 构建与开发
 
 ### Prerequisites / 环境依赖
-- [Node.js](https://nodejs.org/) (v18+) & `npm` / `pnpm`
+- [Node.js](https://nodejs.org/) (v24.19.0+) & `npm` / `pnpm`
 - [Rust](https://www.rust-lang.org/) (Cargo 1.70+)
 
 ### Run Locally / 本地运行

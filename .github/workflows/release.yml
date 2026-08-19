@@ -18,11 +18,11 @@ jobs:
       - name: Checkout Source Code
         uses: actions/checkout@v4
 
-      # 2. 配置 Node.js 运行环境 (Node 22 LTS)
+      # 2. 配置 Node.js 运行环境 (Node 24.19.0)
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24.19.0
           cache: 'npm'
           cache-dependency-path: package-lock.json
 
