@@ -475,8 +475,12 @@ fn open_path_in_explorer(path: &str) -> Result<(), String> {
 
 #[tauri::command]
 fn open_external_url(url: &str) -> Result<(), String> {
-    // 在系统默认浏览器中安全打开外部链接（通过 Win32 ShellExecute，不生成 cmd.exe 进程）
-    let _ = tauri_plugin_opener::open_url(url, None::<&str>);
+    // 严格限制仅允许打开标准 HTTP/HTTPS 网页，防止协议注入或本地可执行文件调用
+    let clean = url.trim();
+    if !clean.starts_with("http://") && !clean.starts_with("https://") {
+        return Err("仅支持打开标准 HTTP/HTTPS 外部网页链接".to_string());
+    }
+    let _ = tauri_plugin_opener::open_url(clean, None::<&str>);
     Ok(())
 }
 
