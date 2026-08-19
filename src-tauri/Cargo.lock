@@ -3140,7 +3140,8 @@ dependencies = [
 
 [[package]]
 name = "revfl"
-version = "1.0.1"
+version = "0.1.1"
+source = "git+https://github.com/k-carbonatedtea/Revfl#f6710f7ab660b56528671daf2ce3ac18848b6b9a"
 dependencies = [
  "indexmap 2.14.0",
  "serde",
