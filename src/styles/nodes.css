@@ -53,12 +53,72 @@
 
 .node-type-badge {
   font-size: 0.7rem;
-  padding: 3px 6px;
+  padding: 3px 7px;
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* 节点类型专属色彩体系（与图1帮助规范严格一致） */
+.node-type-badge.badge-action {
+  background: #0284c7;
+  color: #ffffff;
+}
+
+.node-type-badge.badge-switch {
+  background: #d97706;
+  color: #ffffff;
+}
+
+.node-type-badge.badge-fork,
+.node-type-badge.badge-join {
+  background: #16a34a;
+  color: #ffffff;
+}
+
+.node-type-badge.badge-subflow {
+  background: #7c3aed;
+  color: #ffffff;
+}
+
+.node-type-badge.badge-entry {
+  background: #e11d48;
+  color: #ffffff;
+}
+
+/* 节点边框与微光交互样式 */
+.custom-node.node-type-action {
+  border-color: rgba(2, 132, 199, 0.45);
+}
+.custom-node.node-type-action:hover {
+  border-color: #0284c7;
+}
+
+.custom-node.node-type-switch {
+  border-color: rgba(217, 119, 6, 0.45);
+}
+.custom-node.node-type-switch:hover {
+  border-color: #d97706;
+}
+
+.custom-node.node-type-fork,
+.custom-node.node-type-join {
+  border-color: rgba(22, 163, 74, 0.45);
+}
+.custom-node.node-type-fork:hover,
+.custom-node.node-type-join:hover {
+  border-color: #16a34a;
+}
+
+.custom-node.node-type-subflow {
+  border-color: rgba(124, 58, 237, 0.45);
+}
+.custom-node.node-type-subflow:hover {
+  border-color: #7c3aed;
 }
 
 .node-body {

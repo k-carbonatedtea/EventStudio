@@ -61,10 +61,11 @@ export const resolveMessageText = (
 // 事件节点内部渲染组件
 const EventNodeInternal = ({ data, selected }: { data: EventNodeData; selected: boolean }) => {
   const { t } = useTranslation();
+  const typeLower = data.type ? data.type.toLowerCase() : 'action';
 
   return (
     <div
-      className={`custom-node ${selected ? 'selected' : ''} ${data.isWarning ? 'warning' : ''} ${data.isBlinking ? 'blinking-error' : ''}`}
+      className={`custom-node node-type-${typeLower} ${selected ? 'selected' : ''} ${data.isWarning ? 'warning' : ''} ${data.isBlinking ? 'blinking-error' : ''}`}
       onClick={() => data.onSelect(data)}
       onDoubleClick={(e) => {
         e.stopPropagation();
@@ -78,7 +79,7 @@ const EventNodeInternal = ({ data, selected }: { data: EventNodeData; selected: 
     >
       <Handle type="target" position={Position.Top} />
       <div className="node-header">
-        <span className="node-type-badge">{data.type}</span>
+        <span className={`node-type-badge badge-${typeLower}`}>{data.type}</span>
         <span className="node-title-text">{data.name}</span>
       </div>
 
