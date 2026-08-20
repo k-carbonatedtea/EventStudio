@@ -1,5 +1,5 @@
 import React from 'react';
-import { Handle, Position, BaseEdge, EdgeProps, getBezierPath } from '@xyflow/react';
+import { Handle, Position, BaseEdge, EdgeProps, getBezierPath, useStore } from '@xyflow/react';
 import { useTranslation } from '../i18n';
 
 export interface EventNodeData {
@@ -79,11 +79,17 @@ const EventNodeInternal = ({ data, selected }: { data: EventNodeData; selected: 
       <Handle type="target" position={Position.Top} />
       <div className="node-header">
         <span className="node-type-badge">{data.type}</span>
-        {data.name}
+        <span className="node-title-text">{data.name}</span>
       </div>
+
       <div className="node-body">
         <div
-          style={{ marginBottom: '8px', fontWeight: 500, color: '#e2e8f0', wordBreak: 'break-all' }}
+          style={{
+            marginBottom: '8px',
+            fontWeight: 500,
+            color: '#e2e8f0',
+            wordBreak: 'break-all',
+          }}
         >
           {data.label}
         </div>
@@ -95,6 +101,7 @@ const EventNodeInternal = ({ data, selected }: { data: EventNodeData; selected: 
           </div>
         )}
 
+        {/* 展开参数模式：保持用户展开状态，不自动随缩放折叠 */}
         {data.expandParams &&
         data.originalData[data.type]?.params?.data &&
         Object.keys(data.originalData[data.type].params.data).length > 0 ? (
@@ -152,7 +159,11 @@ const EventNodeInternal = ({ data, selected }: { data: EventNodeData; selected: 
                         {key}
                       </span>
                       <span
-                        style={{ color: '#e2e8f0', wordBreak: 'break-all', textAlign: 'right' }}
+                        style={{
+                          color: '#e2e8f0',
+                          wordBreak: 'break-all',
+                          textAlign: 'right',
+                        }}
                       >
                         {String(val)}
                       </span>
@@ -263,6 +274,9 @@ const AnimatedEdgeInternal = ({
   markerEnd,
 }: EdgeProps) => {
   const showAnimation = React.useContext(FlowAnimationContext);
+  // 在低缩放率 (< 0.45) 时关闭粒子动画以节约 GPU 渲染开销
+  const isHighZoom = useStore((s) => s.transform[2] >= 0.45);
+
   const [edgePath] = getBezierPath({
     sourceX,
     sourceY,
@@ -277,8 +291,8 @@ const AnimatedEdgeInternal = ({
   return (
     <>
       <BaseEdge path={edgePath} markerEnd={markerEnd} style={style} />
-      {showAnimation && (
-        <circle r="4" fill={strokeColor} style={{ filter: `drop-shadow(0 0 4px ${strokeColor})` }}>
+      {showAnimation && isHighZoom && (
+        <circle r="3.5" fill={strokeColor} opacity="0.95">
           <animateMotion dur="2s" repeatCount="indefinite" path={edgePath} />
         </circle>
       )}

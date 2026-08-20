@@ -1,20 +1,21 @@
 /* Custom Node Styles */
 .custom-node {
-  background: var(--node-bg);
-  backdrop-filter: blur(8px);
+  background: var(--node-bg, #18181b);
   border: 1px solid var(--node-border);
   border-radius: 10px;
-  padding: 15px;
+  padding: 14px;
   color: white;
   width: max-content;
   min-width: 220px;
   max-width: 500px;
   box-shadow: var(--node-shadow);
   transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    background-color 0.2s ease;
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.15s ease;
   font-family: inherit;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .custom-node:hover {
@@ -38,6 +39,16 @@
   gap: 8px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   padding-bottom: 8px;
+}
+
+.node-title-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.entry-point-node {
+  user-select: none;
 }
 
 .node-type-badge {
