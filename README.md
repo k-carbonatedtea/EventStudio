@@ -4,6 +4,7 @@
 <p align="center">
   <h2><b>⚠️ 由于 Tauri 性能低于预期，本项目暂时停止更新 ⚠️</b></h2>
   <h2><b>⚠️Updates are temporarily suspended due to lower-than-expected Tauri performance ⚠️</b></h2>
+  <h4><b>I guess I have some paranoia about performance. It's merely a tool, and I don't clearly know what I'm doing. EventStudio was nearing completion, yet at this moment, I've abandoned it. Perhaps it's because AI is involved in this project.</b></h2>
 </p>
 <br>
 
