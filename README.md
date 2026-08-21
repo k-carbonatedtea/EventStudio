@@ -1,5 +1,12 @@
 # Event Studio
 
+<br>
+<p align="center">
+  <h2><b>⚠️ 由于 Tauri 性能低于预期，本项目暂时停止更新 ⚠️</b></h2>
+  <h2><b>⚠️Updates are temporarily suspended due to lower-than-expected Tauri performance ⚠️</b></h2>
+</p>
+<br>
+
 <p align="center">
   <strong>High-Performance Visual Event Flow & Script Editor for Nintendo Games</strong><br>
   <strong>高性能任天堂游戏可视化事件流与脚本编辑器</strong>
